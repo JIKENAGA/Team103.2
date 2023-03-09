@@ -9,9 +9,15 @@ import {
   Button,
   TouchableOpacity,
 } from "react-native";
-function LoginScreen() {
+import "./Test"; 
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+function LoginScreen(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const onPressLogin = () => {
+    props.navigation.navigate('Test');
+  };
   return (
     <View style={styles.container}>
       
@@ -37,8 +43,13 @@ function LoginScreen() {
       <TouchableOpacity>
         <Text style={styles.forgot_button}>Forgot Password?</Text> 
       </TouchableOpacity> 
-      <TouchableOpacity style={styles.loginBtn}>
-        <Text style={styles.loginText}>LOGIN</Text> 
+      <TouchableOpacity 
+        style={styles.loginBtn}
+        onPress={onPressLogin} >
+        <Text
+          title = "Test"
+          style={styles.loginText}
+          >LOGIN</Text> 
       </TouchableOpacity> 
       <TouchableOpacity>
         <Text style={styles.forgot_button}>need a new account?</Text> 
@@ -65,6 +76,9 @@ const styles = StyleSheet.create({
     height: 45,
     marginBottom: 20,
     alignItems: "center",
+  },
+  Button: {
+
   },
   TextInput: {
     height: 50,
