@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-function Test(props) {
+function HomeScreen(props) {
     const onPressLogin = () => {
         props.navigation.navigate('LoginScreen');
       };
@@ -18,7 +18,7 @@ function Test(props) {
         <View style = {styles.container}>
             <TouchableOpacity
             onPress={onPressLogin}>
-                <Text> Hello</Text>
+                <Text> This is Home Screen!</Text>
             </TouchableOpacity>
         </View>
     )
@@ -33,4 +33,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Test;
+export default HomeScreen;

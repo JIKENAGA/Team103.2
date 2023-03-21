@@ -9,15 +9,24 @@ import {
   Button,
   TouchableOpacity,
 } from "react-native";
-import "./Test"; 
+import "./HomeScreen"; 
+import "./SigninScreen"; 
+import "./ResetPasswordScreen"; 
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 function LoginScreen(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const onPressLogin = () => {
-    props.navigation.navigate('Test');
+    props.navigation.navigate('HomeScreen');
   };
+  const onPressSignin = () => {
+    props.navigation.navigate('SigninScreen');
+  };
+  const onPressResetPw = () => {
+    props.navigation.navigate('ResetPasswordScreen');
+  };
+
   return (
     <View style={styles.container}>
       
@@ -26,7 +35,7 @@ function LoginScreen(props) {
       <View style={styles.inputView}>
         <TextInput
           style={styles.TextInput}
-          placeholder="Email."
+          placeholder="Email"
           placeholderTextColor="#005990"
           onChangeText={(email) => setEmail(email)}
         /> 
@@ -34,25 +43,28 @@ function LoginScreen(props) {
       <View style={styles.inputView}>
         <TextInput
           style={styles.TextInput}
-          placeholder="Password."
+          placeholder="Password"
           placeholderTextColor="#003f5c"
           secureTextEntry={true}
           onChangeText={(password) => setPassword(password)}
         /> 
       </View> 
-      <TouchableOpacity>
+      <TouchableOpacity
+      onPress={onPressResetPw} >
         <Text style={styles.forgot_button}>Forgot Password?</Text> 
       </TouchableOpacity> 
+
       <TouchableOpacity 
         style={styles.loginBtn}
         onPress={onPressLogin} >
         <Text
-          title = "Test"
+          title = "HomeSreen"
           style={styles.loginText}
           >LOGIN</Text> 
       </TouchableOpacity> 
-      <TouchableOpacity>
-        <Text style={styles.forgot_button}>need a new account?</Text> 
+      <TouchableOpacity
+      onPress={onPressSignin} >
+        <Text style={styles.signinBtn}>New here? SignIn</Text> 
       </TouchableOpacity> 
     </View> 
   );
@@ -88,6 +100,11 @@ const styles = StyleSheet.create({
   },
   forgot_button: {
     height: 30,
+    marginBottom: 30,
+  },
+  signinBtn: {
+    height: 30,
+    marginTop: 10,
     marginBottom: 30,
   },
   loginBtn: {
