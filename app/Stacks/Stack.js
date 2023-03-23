@@ -5,6 +5,7 @@ import LoginScreen from "../LoginScreen";
 import HomeScreen from "../HomeScreen"
 import SigninScreen from "../SigninScreen"
 import ResetPasswordScreen from "../ResetPasswordScreen"
+import EmailConfirmation from "../EmailConfirmation"
 
 export default Stack = () => {
     const AppStack = createStackNavigator();
@@ -15,6 +16,7 @@ export default Stack = () => {
             <AppStack.Screen name = "HomeScreen" component = {HomeScreen}/>
             <AppStack.Screen name = "SigninScreen" component = {SigninScreen}/>
             <AppStack.Screen name = "ResetPasswordScreen" component = {ResetPasswordScreen}/>
+            <AppStack.Screen name = "EmailConfirmation" component = {EmailConfirmation}/>
         </AppStack.Navigator>
     )
 }
