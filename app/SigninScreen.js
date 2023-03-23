@@ -18,9 +18,12 @@ function SigninScreen(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-    const onPressLogin = () => {
-        props.navigation.navigate('LoginScreen');
-      };
+  const onPressLogin = () => {
+    props.navigation.navigate('LoginScreen');
+  };
+  const onPressSignUp = () => {
+    props.navigation.navigate('HomeScreen')
+  };
 
 
     return(
@@ -100,6 +103,15 @@ function SigninScreen(props) {
         /> 
       </View> 
 
+      <TouchableOpacity
+        style = {styles.signupBtn}
+        onPress = {onPressSignUp} >
+          <Text
+            Title = "LoginScreen"
+            style={styles.signupText}
+            >CREATE ACCOUNT</Text>
+        </TouchableOpacity>
+
         <View style = {styles.returnToLogin}>
             <TouchableOpacity
             onPress={onPressLogin}>
@@ -145,7 +157,18 @@ const styles = StyleSheet.create({
     returnToLogin: {
       height: 30,
       color: '#005990',
-    }
+      marginTop: 20
+    },
+
+    signupBtn: {
+      width: "80%",
+      borderRadius: 25,
+      height: 50,
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 20,
+      backgroundColor: "#BBC0C4",
+    },
 })
 
 export default SigninScreen;

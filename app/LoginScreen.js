@@ -14,6 +14,8 @@ import "./SigninScreen";
 import "./ResetPasswordScreen"; 
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {FontAntDesign, MaterialCommunityIcons, Ionicons} from '@expo/vector-icons';
+
 function LoginScreen(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,6 +35,11 @@ function LoginScreen(props) {
       <Image style={styles.image} source={require("./assets/WacConnectLogo.jpg")} /> 
       <StatusBar style="auto" />
       <View style={styles.inputView}>
+
+        <View style={[styles.iconContainer]}>
+          <Ionicons name="mail" size={25} color="black" />
+        </View>
+
         <TextInput
           style={styles.TextInput}
           placeholder="Email"
@@ -41,6 +48,11 @@ function LoginScreen(props) {
         /> 
       </View> 
       <View style={styles.inputView}>
+
+        <View style={[styles.iconContainer]}>
+          <Ionicons name="key" size={25} color="black" />
+        </View>
+
         <TextInput
           style={styles.TextInput}
           placeholder="Password"
@@ -88,6 +100,7 @@ const styles = StyleSheet.create({
     height: 45,
     marginBottom: 20,
     alignItems: "center",
+    flexDirection: 'row',
   },
   Button: {
 
@@ -96,7 +109,7 @@ const styles = StyleSheet.create({
     height: 50,
     flex: 1,
     padding: 10,
-    marginLeft: 20,
+    //marginLeft: 20,
   },
   forgot_button: {
     height: 30,
@@ -116,6 +129,9 @@ const styles = StyleSheet.create({
     marginTop: 40,
     backgroundColor: "#BBC0C4",
   },
+  iconContainer:{
+    padding: 10,
+  }
 });
 
 export default LoginScreen;
