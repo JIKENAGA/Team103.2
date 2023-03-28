@@ -10,6 +10,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import {FontAntDesign, MaterialCommunityIcons, Ionicons} from '@expo/vector-icons';
+import {ref, set, push, child} from "firebase/database";
+import { db } from './Firebase/firebase'
 
 function SigninScreen(props) {
   const [firstName, setFirstName] = useState("");
@@ -21,9 +23,26 @@ function SigninScreen(props) {
   const onPressLogin = () => {
     props.navigation.navigate('LoginScreen');
   };
-  const onPressSignUp = () => {
-    props.navigation.navigate('HomeScreen')
+
+
+
+  function onPressSignUp () {
+    props.navigation.navigate('LoginScreen')
+
+    console.log(firstName,lastName,displayName,email,password,confirmPassword)
+    // const newKey = push(child(ref(db),'userinfo')).key;
+    set(ref(db, 'userinfo/' + displayName), {
+      // key: newKey,
+      firstName: firstName,
+      lastName: lastName,
+      displayName: displayName,
+      email: email,
+      password: password,
+    })
+    console.log('test')
   };
+
+
 
 
     return(

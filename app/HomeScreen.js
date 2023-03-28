@@ -18,7 +18,7 @@ function HomeScreen(props) {
       };
 
     const buttonsList = ["test1", "test2","test3","+"]
-    buttonsListArr = [];
+    var buttonsListArr = [];
     for (let i = 0; i < buttonsList.length;i++){
       buttonsListArr.push(
         <TouchableOpacity style={styles.appButtonContainer}>
