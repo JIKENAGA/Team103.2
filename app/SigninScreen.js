@@ -8,8 +8,9 @@ import {
   TextInput,
   Button,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from "react-native";
-import {FontAntDesign, MaterialCommunityIcons, Ionicons} from '@expo/vector-icons';
+import {Ionicons} from '@expo/vector-icons';
 import {ref, set, push, child} from "firebase/database";
 import { db } from './Firebase/firebase'
 
@@ -20,125 +21,180 @@ function SigninScreen(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  }
   const onPressLogin = () => {
     props.navigation.navigate('LoginScreen');
   };
 
 
+  // Function to make email be usable as a key
+  function emailToKey(email) {
+    return email.replace(".", ",");
+  }
+
+  //Function to make sure password meets requirements
+
 
   function onPressSignUp () {
-    props.navigation.navigate('LoginScreen')
 
-    console.log(firstName,lastName,displayName,email,password,confirmPassword)
-    // const newKey = push(child(ref(db),'userinfo')).key;
-    set(ref(db, 'userinfo/' + displayName), {
-      // key: newKey,
+    // Check if boxes are left blank
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+      alert("Please fill in all required fields")
+      return
+    }
+
+    //Create Display Name if one is not given
+    if(displayName.trim() === '') {
+      const newName = firstName.trim() + ' ' + lastName.trim();
+      setDisplayName(newName);
+      return
+    }
+
+    // Check that passwords match
+    if (password !== confirmPassword) {
+      alert("Passwords do not match")
+      return
+    }
+
+    //Check that password meets requirements
+
+
+
+    const key = emailToKey(email)
+    set(ref(db, 'userinfo/' + key), {
       firstName: firstName,
       lastName: lastName,
       displayName: displayName,
       email: email,
       password: password,
     })
-    console.log('test')
+    .then (() => {
+      alert("Successfully created an account")
+      // Navigate to login screen only if account has been created
+      props.navigation.navigate('LoginScreen')
+    })
   };
 
 
 
 
     return(
-      <View style={styles.container}>
-  
-      <Image style={styles.image} source={require("./assets/WacConnectLogo.jpg")} /> 
+          // KeyboardAvoidingView allows the input fields to be seen when the keyboard pops up
+          <KeyboardAvoidingView style={{flex: 1}} behavior="padding">
+            <View style = {styles.container}>
 
-      <View style={styles.inputView}>
-        <View style={[styles.iconContainer]}>
-          <Ionicons name="person-circle" size={25} color="black" />
-        </View>
-        <TextInput
-          style={styles.TextInput}
-          placeholder="First Name"
-          placeholderTextColor="black"
-          onChangeText={(firstName) => setFirstName(firstName)}
-        /> 
-      </View> 
+              {/* Wac Connect Logo */}
+              <Image style={styles.image} source={require("./assets/WacConnectLogo.jpg")} /> 
 
-      <View style={styles.inputView}>
-        <View style={[styles.iconContainer]}>
-          <Ionicons name="person-circle" size={25} color="black" />
-        </View>
-        <TextInput
-          style={styles.TextInput}
-          placeholder="Last Name"
-          placeholderTextColor="black"
-          onChangeText={(lastName) => setLastName(lastName)}
-        /> 
-      </View> 
+              {/* First name input*/}
+              <View style={styles.inputView}>
+                <View style={[styles.iconContainer]}>
+                  <Ionicons name="person-circle" size={25} color="black" />
+                </View>
+                <TextInput
+                  style={styles.TextInput}
+                  placeholder="First Name*"
+                  placeholderTextColor="black"
+                  onChangeText={(firstName) => setFirstName(firstName)}
+                /> 
+              </View> 
 
-      <View style={styles.inputView}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="person-circle" size={25} color="black" />
-        </View>
-        <TextInput
-          style={styles.TextInput}
-          placeholder="Display Name"
-          placeholderTextColor="black"
-          onChangeText={(displayName) => setDisplayName(displayName)}
-        /> 
-      </View> 
+              {/* Last name input*/}
+              <View style={styles.inputView}>
+                <View style={[styles.iconContainer]}>
+                  <Ionicons name="person-circle" size={25} color="black" />
+                </View>
+                <TextInput
+                  style={styles.TextInput}
+                  placeholder="Last Name*"
+                  placeholderTextColor="black"
+                  onChangeText={(lastName) => setLastName(lastName)}
+                /> 
+              </View> 
 
-      <View style={styles.inputView}>
-        <View style={[styles.iconContainer]}>
-          <Ionicons name="mail" size={25} color="black" />
-        </View>
-        <TextInput
-          style={styles.TextInput}
-          placeholder="School Email"
-          placeholderTextColor="black"
-          onChangeText={(email) => setEmail(email)}
-        /> 
-      </View> 
+              {/* Display name input*/}
+              <View style={styles.inputView}>
+                <View style={styles.iconContainer}>
+                  <Ionicons name="person-circle" size={25} color="black" />
+                </View>
+                <TextInput
+                  style={styles.TextInput}
+                  placeholder="Display Name"
+                  placeholderTextColor="black"
+                  onChangeText={(displayName) => setDisplayName(displayName)}
+                /> 
+              </View> 
 
-      <View style={styles.inputView}>
-        <View style={[styles.iconContainer]}>
-          <Ionicons name="key" size={25} color="black" />
-        </View>
-        <TextInput
-          style={styles.TextInput}
-          placeholder="Create Password"
-          placeholderTextColor="black"
-          onChangeText={(password) => setPassword(password)}
-        /> 
-      </View> 
+              {/* Email input*/}
+              <View style={styles.inputView}>
+                <View style={[styles.iconContainer]}>
+                  <Ionicons name="mail" size={25} color="black" />
+                </View>
+                <TextInput
+                  style={styles.TextInput}
+                  placeholder="School Email*"
+                  placeholderTextColor="black"
+                  onChangeText={(email) => setEmail(email)}
+                /> 
+              </View> 
 
-      <View style={styles.inputView}>
-        <View style={[styles.iconContainer]}>
-          <Ionicons name="key" size={25} color="black" />
-        </View>
-        <TextInput
-          style={styles.TextInput}
-          placeholder="Confirm Password"
-          placeholderTextColor="black"
-          onChangeText={(confirmPassword) => setConfirmPassword(confirmPassword)}
-        /> 
-      </View> 
+              {/* Create Password input*/}
+              <View style={styles.inputView}>
+                <View style={[styles.iconContainer]}>
+                  <Ionicons name="key" size={25} color="black" />
+                </View>
+                <TextInput
+                  style={styles.TextInput}
+                  placeholder="Create Password*"
+                  placeholderTextColor="black"
+                  onChangeText={(password) => setPassword(password)}
+                  secureTextEntry = {!showPassword}
+                /> 
+                <TouchableOpacity onPress={toggleShowPassword}>
+                  <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={15} />
+                </TouchableOpacity>
+              </View> 
 
-      <TouchableOpacity
-        style = {styles.signupBtn}
-        onPress = {onPressSignUp} >
-          <Text
-            Title = "LoginScreen"
-            style={styles.signupText}
-            >CREATE ACCOUNT</Text>
-        </TouchableOpacity>
+              {/* Confirm Password input*/}
+              <View style={styles.inputView}>
+                <View style={[styles.iconContainer]}>
+                  <Ionicons name="key" size={25} color="black" />
+                </View>
+                <TextInput
+                  style={styles.TextInput}
+                  placeholder="Confirm Password*"
+                  placeholderTextColor="black"
+                  onChangeText={(confirmPassword) => setConfirmPassword(confirmPassword)}
+                  secureTextEntry = {!showPassword}
+                /> 
+                <TouchableOpacity onPress={toggleShowPassword}>
+                  <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={15} />
+                </TouchableOpacity>
+              </View> 
 
-        <View style = {styles.returnToLogin}>
-            <TouchableOpacity
-            onPress={onPressLogin}>
-                <Text> Already have an account?</Text>
-             
-            </TouchableOpacity>
-        </View>
-    </View>
+              {/* Sign Up Button*/}
+              <TouchableOpacity
+                style = {[styles.signupBtn]}
+                onPress = {onPressSignUp} >
+                  <Text
+                    Title = "LoginScreen"
+                    style={styles.signupText}
+                    >CREATE ACCOUNT</Text>
+                </TouchableOpacity>
+
+              {/* Already Have an account*/}
+                <View style = {styles.returnToLogin}>
+                    <TouchableOpacity
+                    onPress={onPressLogin}>
+                        <Text> Already have an account?</Text>
+                    
+                    </TouchableOpacity>
+                </View>
+            </View>
+          </KeyboardAvoidingView>
     )
 }
 
