@@ -36,7 +36,11 @@ function SigninScreen(props) {
   }
 
   //Function to make sure password meets requirements
-
+  function validatePassword(password) {
+    // Check if password is at least 6 characters long and contains at least one digit
+    const passwordRegex = /^(?=.*\d)(?=.*[A-Z]).{6,}$/;
+    return passwordRegex.test(password);
+  }
 
   function onPressSignUp () {
 
@@ -60,7 +64,10 @@ function SigninScreen(props) {
     }
 
     //Check that password meets requirements
-
+    if (!validatePassword(password)) {
+      alert('Password must be at least 6 characters long and contain at least one number and at least one capital letter.');
+      return
+    }
 
 
     const key = emailToKey(email)
