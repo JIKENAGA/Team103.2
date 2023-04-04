@@ -15,12 +15,22 @@ import "./ResetPasswordScreen";
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {FontAntDesign, MaterialCommunityIcons, Ionicons} from '@expo/vector-icons';
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 function LoginScreen(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const onPressLogin = () => {
-    props.navigation.navigate('HomeScreen');
+    const auth = getAuth();
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed in 
+          const user = userCredential.user;
+          console.log(user)
+          props.navigation.navigate('HomeScreen');
+          // ...
+      })
+    console.log(auth)
   };
   const onPressSignin = () => {
     props.navigation.navigate('SigninScreen');
