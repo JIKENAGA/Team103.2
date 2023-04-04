@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons';
 import {ref, set, push, child} from "firebase/database";
-import { db } from './Firebase/firebase'
+import { db } from './Firebase/firebase';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 
@@ -72,28 +72,23 @@ function SigninScreen(props) {
     }
 
 
-    // const key = emailToKey(email)
-    // set(ref(db, 'userinfo/' + key), {
-    //   firstName: firstName,
-    //   lastName: lastName,
-    //   displayName: displayName,
-    //   email: email,
-    //   password: password,
-    // })
-    // .then (() => {
-    //   alert("Successfully created an account")
-    //   // Navigate to login screen only if account has been created
-    //   props.navigation.navigate('LoginScreen')
-    // })
-
     // Create Account to firebase users database
     console.log(email, password)
     const auth = getAuth();
       createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+
+          set(ref(db, 'userinfo/' + userCredential.user.uid), {
+              firstName: firstName,
+              lastName: lastName,
+              displayName: displayName,
+              email: email,
+            });
+          
+        })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          // ..
         });
     
     // Navigate tp Login Screen
