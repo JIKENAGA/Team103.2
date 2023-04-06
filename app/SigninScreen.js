@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons';
-import {ref, set, push, child} from "firebase/database";
+import {ref, set, push, child, onValue} from "firebase/database";
 import { db } from './Firebase/firebase';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
@@ -28,7 +28,28 @@ function SigninScreen(props) {
     setShowPassword(!showPassword);
   }
   const onPressLogin = () => {
-    props.navigation.navigate('LoginScreen');
+    const usersRef = ref(db, "userinfo");
+    console.log('test')
+    console.log(email)
+
+// Check if the email exists in any user key
+  onValue(usersRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      console.log(email)
+      Object.keys(users).forEach((userId) => {
+        if (users[userId].email === email) {
+        console.log(`Email exists in user key: ${userId}`);
+        }
+    });
+  } else {
+    console.log("No data available");
+  }
+}, (error) => {
+  console.error(error);
+});
+
+    // props.navigation.navigate('LoginScreen');
   };
 
 
