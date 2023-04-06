@@ -11,10 +11,13 @@ import {
   TouchableOpacity,
   ScrollView
 } from "react-native";
-
+import {Ionicons} from '@expo/vector-icons';
 function HomeScreen(props) {
     const onPressLogin = () => {
         props.navigation.navigate('LoginScreen');
+      };
+      const onPressGoProfile = () => {
+        props.navigation.navigate('ProfileScreen');
       };
 
     const buttonsList = ["test1", "test2","test3","+"]
@@ -48,10 +51,15 @@ function HomeScreen(props) {
             </View>
             <View style={styles.bottomBox}>
               <TouchableOpacity>
-                <Image style={styles.image} source={require("./assets/chimney-home-icon-transparent-1.png")}/>
+              <Ionicons name="home" size={25} color="black" />
               </TouchableOpacity>
             </View>
-            <View style={styles.bottomBox}></View>
+            <View style={styles.bottomBox}>
+            <TouchableOpacity
+            onPress={onPressGoProfile}>
+            <Ionicons name="person-circle-sharp" size={25} color="black" />
+            </TouchableOpacity>
+            </View>
           </View>
         </View>
     )
