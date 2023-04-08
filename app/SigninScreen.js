@@ -27,35 +27,35 @@ function SigninScreen(props) {
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   }
+
   const onPressLogin = () => {
-    const usersRef = ref(db, "userinfo");
-    console.log('test')
-    console.log(email)
-
-// Check if the email exists in any user key
-  onValue(usersRef, (snapshot) => {
-    if (snapshot.exists()) {
-      const users = snapshot.val();
-      console.log(email)
-      Object.keys(users).forEach((userId) => {
-        if (users[userId].email === email) {
-        console.log(`Email exists in user key: ${userId}`);
-        }
-    });
-  } else {
-    console.log("No data available");
-  }
-}, (error) => {
-  console.error(error);
-});
-
-    // props.navigation.navigate('LoginScreen');
+    props.navigation.navigate('LoginScreen');
   };
 
 
   // Function to make email be usable as a key
   function emailToKey(email) {
     return email.replace(".", ",");
+  }
+
+  // Function to see if email exists
+  function checkEmailExists(email) {
+    const usersRef = ref(db, "userinfo");
+    onValue(usersRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const users = snapshot.val();
+        console.log(email)
+        Object.keys(users).forEach((userId) => {
+          if (users[userId].email === email) {
+          console.log(`Email exists in user key: ${userId}`);
+          }
+      });
+    } else {
+      console.log("No data available");
+    }
+    }, (error) => {
+      console.error(error);
+    });
   }
 
   //Function to make sure password meets requirements
@@ -89,6 +89,11 @@ function SigninScreen(props) {
     //Check that password meets requirements
     if (!validatePassword(password)) {
       alert('Password must be at least 6 characters long and contain at least one number and at least one capital letter.');
+      return
+    }
+
+    if(!checkEmailExists(email)) {
+      alert('Account with this email already exists')
       return
     }
 
