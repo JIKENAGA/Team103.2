@@ -29,7 +29,29 @@ function SigninScreen(props) {
   }
 
   const onPressLogin = () => {
+    const usersRef = ref(db, "userinfo");
+    //console.log('test')
     props.navigation.navigate('LoginScreen');
+    console.log(email)
+
+// Check if the email exists in any user key
+  onValue(usersRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      console.log(email)
+      Object.keys(users).forEach((userId) => {
+        if (users[userId].email === email) {
+        console.log(`Email exists in user key: ${userId}`);
+        }
+    });
+  } else {
+    console.log("No data available");
+  }
+}, (error) => {
+  console.error(error);
+});
+
+    // props.navigation.navigate('LoginScreen');
   };
 
 
