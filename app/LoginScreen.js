@@ -30,6 +30,12 @@ function LoginScreen(props) {
           props.navigation.navigate('HomeScreen');
           // ...
       })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert("Username or password is incorrect")
+        // console.error("Error signing in:", errorMessage);
+      });
     console.log(auth)
   };
   const onPressSignin = () => {
