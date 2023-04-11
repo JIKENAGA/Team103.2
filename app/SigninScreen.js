@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import {
   StyleSheet,
@@ -6,12 +5,11 @@ import {
   View,
   Image,
   TextInput,
-  Button,
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons';
-import {ref, set, push, child, onValue} from "firebase/database";
+import {ref, set, onValue} from "firebase/database";
 import { db } from './Firebase/firebase';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
@@ -24,49 +22,50 @@ function SigninScreen(props) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  // Used to toggle whether password is shown or not
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   }
 
+  // Navigate back to login screen
   const onPressLogin = () => {
     props.navigation.navigate('LoginScreen');
   };
 
 
-  // Function to make email be usable as a key
-  function emailToKey(email) {
-    return email.replace(".", ",");
-  }
-
   // Function to see if email exists
   function checkEmailExists(email) {
     const usersRef = ref(db, "userinfo");
-    onValue(usersRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const users = snapshot.val();
-        console.log(email)
-        Object.keys(users).forEach((userId) => {
-          if (users[userId].email === email) {
-          console.log(`Email exists in user key: ${userId}`);
-          }
+    return new Promise((resolve, reject) => {
+      onValue(usersRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const users = snapshot.val();
+          Object.keys(users).forEach((userId) => {
+            if (users[userId].email === email) {
+              resolve(true);
+            }
+          });
+        } else {
+          console.log("No data available");
+        }
+        resolve(false);
+      }, (error) => {
+        console.error(error);
+        reject(error);
       });
-    } else {
-      console.log("No data available");
-    }
-    }, (error) => {
-      console.error(error);
     });
   }
 
   //Function to make sure password meets requirements
   function validatePassword(password) {
-    // Check if password is at least 6 characters long and contains at least one digit
+    // Check if password is at least 6 characters long and contains at least one capital letter and one number
     const passwordRegex = /^(?=.*\d)(?=.*[A-Z]).{6,}$/;
     return passwordRegex.test(password);
   }
 
-  function onPressSignUp () {
 
+  async function onPressSignUp () {
     // Check if boxes are left blank
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       alert("Please fill in all required fields")
@@ -93,7 +92,8 @@ function SigninScreen(props) {
     }
 
     // Check if email exists in database
-    if(!checkEmailExists(email)) {
+    const emailExists = await checkEmailExists(email);
+    if(emailExists) {
       alert('Account with this email already exists')
       return
     }
@@ -118,7 +118,7 @@ function SigninScreen(props) {
           const errorMessage = error.message;
         });
     
-    // Navigate tp Login Screen
+    // Navigate to Login Screen
       props.navigation.navigate('LoginScreen')
 
 
