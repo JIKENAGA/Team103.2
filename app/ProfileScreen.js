@@ -57,14 +57,12 @@ const ProfileScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
-      <TouchableOpacity 
-        style={styles.loginBtn}
-        onPress={onPressLogin} >
+      
         <Image
            source={require("./assets/no-user-image.jpg")}
           style={styles.avatar}
         />
-        </TouchableOpacity>
+        
         <Text style={styles.name}>{username}</Text>
       </View>
       <View style={styles.infoContainer}>

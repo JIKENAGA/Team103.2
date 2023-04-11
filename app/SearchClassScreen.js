@@ -6,11 +6,26 @@ import { db } from './Firebase/firebase';
 
 export default function SearchScreen() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   const handleSearch = () => {
     // handle the search logic here
     console.log(`Searching for "${searchTerm}"...`);
+    db.collection('classes')
+      .where('Short Title', '==', searchTerm)
+      .get()
+      .then((querySnapshot) => {
+        const results = [];
+        querySnapshot.forEach((doc) => {
+          results.push(doc.data());
+        });
+        setSearchResults(results);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
+  
 
   return (
     <View style={styles.container}>
@@ -28,9 +43,20 @@ export default function SearchScreen() {
       onPress={handleSearch}
     >
       <Text style={styles.buttonText}>Search</Text>
-    </TouchableOpacity>
-  </View>
-);
+      </TouchableOpacity>
+
+      {searchResults.length > 0 &&
+        <View style={styles.resultsContainer}>
+          <Text style={styles.resultsTitle}>Search Results</Text>
+          {searchResults.map((result) => (
+            <Text style={styles.resultText} key={result['Short Title']}>
+              {result['Short Title']}
+            </Text>
+          ))}
+        </View>
+      }
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
