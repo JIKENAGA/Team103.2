@@ -29,7 +29,8 @@ function SigninScreen(props) {
   }
   const onPressLogin = () => {
     const usersRef = ref(db, "userinfo");
-    console.log('test')
+    //console.log('test')
+    props.navigation.navigate('LoginScreen');
     console.log(email)
 
 // Check if the email exists in any user key

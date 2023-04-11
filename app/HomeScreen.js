@@ -19,15 +19,28 @@ function HomeScreen(props) {
       const onPressGoProfile = () => {
         props.navigation.navigate('ProfileScreen');
       };
+      const onPressSearchClass = () => {
+        props.navigation.navigate('SearchClassScreen');
+      };
 
     const buttonsList = ["test1", "test2","test3","+"]
     var buttonsListArr = [];
     for (let i = 0; i < buttonsList.length;i++){
-      buttonsListArr.push(
-        <TouchableOpacity style={styles.appButtonContainer}>
-          <Text style={styles.appButtonText}>{buttonsList[i]}</Text>
-        </TouchableOpacity>
-      )
+
+      if (i==buttonsList.length-1){
+        buttonsListArr.push(
+          <TouchableOpacity onPress={onPressSearchClass} style={styles.appPlusButtonContainer}>
+            <Text style={styles.appButtonText}>{buttonsList[i]}</Text>
+          </TouchableOpacity>
+        )
+      }
+      if (i!=buttonsList.length-1){
+        buttonsListArr.push(
+          <TouchableOpacity style={styles.appButtonContainer}>
+            <Text style={styles.appButtonText}>{buttonsList[i]}</Text>
+          </TouchableOpacity>
+        )
+      }
     }
 
     return(
@@ -99,11 +112,23 @@ const styles = StyleSheet.create({
       elevation: 8,
       backgroundColor: "#bebdb8",
       borderRadius: 20,
-      paddingVertical: 50,
+      paddingVertical: 30,
       paddingHorizontal: 12,
-      marginTop: 50,
+      marginTop: 30,
       marginRight: 10,
       marginLeft: 10
+    },
+    appPlusButtonContainer: {
+      elevation: 8,
+      backgroundColor: "#bebdb8",
+      borderRadius: 20,
+      paddingVertical: 30,
+      paddingHorizontal: 12,
+      marginTop: 30,
+      marginRight: 10,
+      marginLeft: 10,
+      opacity: 20
+
     },
     appButtonText: {
       fontSize: 18,
@@ -116,8 +141,8 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      borderWidth: 1,
-      borderColor: 'black',
+      borderWidth: 0.5,
+      borderColor: '#545147',
     },
     image: {
       width: 50,
