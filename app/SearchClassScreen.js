@@ -1,30 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FlatList } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, } from 'react-native';
 import 'firebase/firestore';
 import { db } from './Firebase/firebase';
+import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue } from 'firebase/database';
 
 
 export default function SearchScreen() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
+
   const handleSearch = () => {
-    // handle the search logic here
     console.log(`Searching for "${searchTerm}"...`);
-    db.collection('classes')
-      .where('Short Title', '==', searchTerm)
-      .get()
-      .then((querySnapshot) => {
-        const results = [];
-        querySnapshot.forEach((doc) => {
-          results.push(doc.data());
-        });
-        setSearchResults(results);
-      })
-      .catch((error) => {
-        console.log(error);
+    const dataRef = ref(db, 'classes');
+    const queryRef = query(
+      dataRef,
+      orderByChild('Short Title'),
+      startAt(searchTerm.toLowerCase()),
+      endAt(searchTerm.toLowerCase() + '\uf8ff')
+    );
+    console.log(queryRef)
+    const results = [];
+
+    onValue(queryRef, (snapshot) => {
+      snapshot.forEach((child) => {
+        const data = child.val();
+        if (data['Short Title'].toLowerCase().includes(searchTerm.toLowerCase())) {
+          results.push(data);
+        }
       });
+      console.log(results)
+      setSearchResults(results);
+    });
+    console.log(searchResults)
   };
+
+  const renderSearchResults = ({ item }) => {
+    return (
+      <View>
+        <Text>{item.name}</Text>
+      </View>
+    );
+  };
+
   
 
   return (
@@ -43,18 +61,8 @@ export default function SearchScreen() {
       onPress={handleSearch}
     >
       <Text style={styles.buttonText}>Search</Text>
-      </TouchableOpacity>
+    </TouchableOpacity>
 
-      {searchResults.length > 0 &&
-        <View style={styles.resultsContainer}>
-          <Text style={styles.resultsTitle}>Search Results</Text>
-          {searchResults.map((result) => (
-            <Text style={styles.resultText} key={result['Short Title']}>
-              {result['Short Title']}
-            </Text>
-          ))}
-        </View>
-      }
     </View>
   );
 }
