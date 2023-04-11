@@ -48,7 +48,7 @@ function HomeScreen(props) {
         <View style = {styles.container}>
           <View style = {styles.topunobtainable}></View>
           <View style={styles.topcontainer}>
-            <Text style={styles.appButtonText}>Wac Connect</Text>
+            <Text style={styles.topText}>Wac Connect</Text>
           </View>
           <View style={{flex:18}}>
             <ScrollView style={styles.scrollView}>
@@ -94,9 +94,12 @@ const styles = StyleSheet.create({
     },
     topcontainer: {
       flex:2,
-      backgroundColor: 'grey',
+      backgroundColor: '#8a000d',
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
+      borderColor: 'black',
+      borderBottomWidth: 3,
+      opacity: .8
     },
     bottomContainer: {
       flex:2,
@@ -106,11 +109,12 @@ const styles = StyleSheet.create({
     },
     topunobtainable:{
       flex:1,
-      backgroundColor: 'grey',
+      backgroundColor: '#8a000d',
+      opacity: .8
     },
     appButtonContainer: {
       elevation: 8,
-      backgroundColor: "#bebdb8",
+      backgroundColor: "#BBC0C4",
       borderRadius: 20,
       paddingVertical: 30,
       paddingHorizontal: 12,
@@ -120,7 +124,7 @@ const styles = StyleSheet.create({
     },
     appPlusButtonContainer: {
       elevation: 8,
-      backgroundColor: "#bebdb8",
+      backgroundColor: "#BBC0C4",
       borderRadius: 20,
       paddingVertical: 30,
       paddingHorizontal: 12,
@@ -131,6 +135,13 @@ const styles = StyleSheet.create({
 
     },
     appButtonText: {
+      fontSize: 18,
+      color: "black",
+      fontWeight: "bold",
+      alignSelf: "center",
+      textTransform: "uppercase"
+    },
+    topText: {
       fontSize: 18,
       color: "#fff",
       fontWeight: "bold",
