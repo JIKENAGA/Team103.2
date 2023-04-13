@@ -11,18 +11,39 @@ import {
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons';
 import "./EmailConfirmation"; 
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
 function ResetPasswordScreen(props) {
   const [email, setEmail] = useState("");
-    const onPressLogin = () => {
-        props.navigation.navigate('LoginScreen');
-      };
-    const onPressSignin = () => {
-        props.navigation.navigate('SigninScreen');
-      };
-    const onPressConfirmEmail = () => {
-        props.navigation.navigate('EmailConfirmation');
-      };
+  const onPressLogin = () => {
+      props.navigation.navigate('LoginScreen');
+    };
+  const onPressSignin = () => {
+      props.navigation.navigate('SigninScreen');
+    };
+  const auth = getAuth();
+
+  const resetEmail = (email) => {
+    console.log(email);
+    sendPasswordResetEmail(auth, email)
+    .then(() => {
+      console.log("Password reset email sent");
+      alert("Email Sent")
+    })
+    .catch((error) => {
+      console.log("Error sending password reset email: ", error);
+      alert("Error sending email")
+    });
+  };  
+
+  const onPressConfirmEmail = () => {
+      resetEmail(email);
+    };
+
+  
+
+
+
       return (
         <View style={styles.container}>
           <Image style={styles.image} source={require("./assets/WacConnectLogo.jpg")} /> 

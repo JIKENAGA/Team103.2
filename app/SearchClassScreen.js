@@ -2,10 +2,15 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { db } from './Firebase/firebase';
 import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue } from 'firebase/database';
+import {Ionicons} from '@expo/vector-icons'
 
-export default function SearchScreen() {
+export default function SearchScreen(props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+
+  const onPressHomeScreen = () => {
+    props.navigation.navigate('HomeScreen');
+  };
 
   const handleSearch = () => {
     console.log(`Searching for "${searchTerm}"...`);
@@ -31,7 +36,7 @@ export default function SearchScreen() {
 
   const renderSearchResult = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.result} onPress={() => console.log(`Pressed ${item['Short Title']}`)}>
+      <TouchableOpacity key={item['Course']} style={styles.result} onPress={() => console.log(`Pressed ${item['Short Title']}`)}>
         <Text style={styles.resultText}>{item['Short Title']}</Text>
       </TouchableOpacity>
     );
@@ -39,7 +44,12 @@ export default function SearchScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Search Classes</Text>
+      <View style = {styles.header}>
+        <TouchableOpacity style = {styles.iconWrapper} onPress={onPressHomeScreen}>
+          <Ionicons name="md-arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Search Classes</Text>
+      </View>
 
       <TextInput
         style={styles.input}
@@ -55,7 +65,7 @@ export default function SearchScreen() {
       <FlatList
         data={searchResults}
         renderItem={renderSearchResult}
-        keyExtractor={(item) => item['ID']}
+        keyExtractor={(item) => item['Course']}
         style={styles.resultsList}
       />
     </View>
@@ -66,6 +76,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 0,
+    marginTop: 10,
   },
   title: {
     fontSize: 20,
@@ -99,6 +115,13 @@ const styles = StyleSheet.create({
   },
   resultText: {
     fontSize: 16,
+  },
+  iconWrapper: {
+    marginTop: 8,
+    marginRight: 10,
+  },
+  icon: {
+    marginLeft: 10
   },
 });
 
