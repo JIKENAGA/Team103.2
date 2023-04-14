@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
-import { db } from './Firebase/firebase';
-import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue } from 'firebase/database';
-import {Ionicons} from '@expo/vector-icons'
+import { db} from './Firebase/firebase';
+import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue, push, set, equalTo } from 'firebase/database';
+import {Ionicons} from '@expo/vector-icons';
+import { getAuth, currentUser,} from 'firebase/auth';
 
 export default function SearchScreen(props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
+  // Navigate back to home screen
   const onPressHomeScreen = () => {
-    props.navigation.navigate('HomeScreen');
+   props.navigation.navigate('HomeScreen');
   };
 
+
+  // Query the database for short titles that contain the inputted search
   const handleSearch = () => {
     console.log(`Searching for "${searchTerm}"...`);
     const dataRef = ref(db, 'classes');
@@ -34,10 +38,47 @@ export default function SearchScreen(props) {
     });
   };
 
+  const auth = getAuth();
+
+  // Handles adding the userId and the ClassId to the classrelation table
+  const handleAdd = (courseId) => {
+    const userId = auth.currentUser.uid;
+    const classRelationRef = ref(db, 'classRelation');
+    const newClassRelationRef = push(classRelationRef);
+    set(newClassRelationRef, {
+      userId,
+      courseId
+    });
+    alert("Course Added")
+  };
+
+
+  // Creates the result list and handles the result boxes
   const renderSearchResult = ({ item }) => {
+    const userId = auth.currentUser.uid;
+    const classRelationRef = ref(db, 'classRelation');
+
+    // Query the classRelation table to get all nodes with userId equal to the current user's id
+    const queryRef = query(classRelationRef, orderByChild('userId'), equalTo(userId));
+    const courseIdList = [];
+    // Add all of the courseIds the user is in to list
+    onValue(queryRef, (snapshot) => {
+      snapshot.forEach((child) => {
+        const data = child.val();
+        courseIdList.push(data['courseId']);
+      });
+    });
+    // If courseId is in list with courses user is in it will not display in results
+    if (courseIdList.includes(item['Course'])) { 
+      return null;
+    }
     return (
-      <TouchableOpacity key={item['Course']} style={styles.result} onPress={() => console.log(`Pressed ${item['Short Title']}`)}>
+      <TouchableOpacity style={styles.result} onPress={() => console.log(`Pressed ${item['Short Title']}`)}>
         <Text style={styles.resultText}>{item['Short Title']}</Text>
+        <Text style={styles.courseIdText}>{item['Course']}</Text>
+        <TouchableOpacity style={styles.addButton} onPress={() => handleAdd(item['Course'])}>
+          <Ionicons name="add" size={20} color="black" />
+        </TouchableOpacity>
       </TouchableOpacity>
     );
   };
@@ -123,109 +164,24 @@ const styles = StyleSheet.create({
   icon: {
     marginLeft: 10
   },
+  resultId: {
+    fontSize: 12,
+    color: '#8a000d',
+    marginTop: 5,
+  },
+  buttonText: {
+    color: 'white',
+    textAlign: 'center',
+    marginRight: 5,
+  },
+  addButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 10,
+    borderRadius: 5,
+  },
+  courseIdText: {
+    color: '#8a000d'
+  }
 });
-
-
-
-
-
-
-
-
-
-// import React, { useState, useEffect, FlatList } from 'react';
-// import { View, Text, TextInput, TouchableOpacity, StyleSheet, } from 'react-native';
-// import 'firebase/firestore';
-// import { db } from './Firebase/firebase';
-// import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue, } from 'firebase/database';
-
-
-// export default function SearchScreen() {
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const [searchResults, setSearchResults] = useState([]);
-
-
-//   const handleSearch = () => {
-//     console.log(`Searching for "${searchTerm}"...`);
-//     const dataRef = ref(db, 'classes');
-//     const queryRef = query(
-//       dataRef,
-//       orderByChild('Short Title'),
-//       endAt(searchTerm.toLowerCase() + '\uf8ff')
-//     );
-//     //console.log(queryRef)
-//     const results = [];
-  
-//     onValue(queryRef, (snapshot) => {
-//       snapshot.forEach((child) => {
-//         const data = child.val();
-//         if (data['Short Title'].toLowerCase().includes(searchTerm.toLowerCase())) {
-//           results.push(data);
-//         }
-//       });
-//       console.log(results);
-//       setSearchResults(results);
-//     });
-//   };
-
-//   const renderSearchResults = ({ item }) => {
-//     return (
-//       <View>
-//         <Text>{item}</Text>
-//       </View>
-//     );
-//   };
-
-  
-
-//   return (
-//     <View style={styles.container}>
-//     <Text style={styles.title}>Search Classes</Text>
-
-//     <TextInput
-//       style={styles.input}
-//       placeholder="Enter search term"
-//       value={searchTerm}
-//       onChangeText={(text) => setSearchTerm(text)}
-//     />
-
-//     <TouchableOpacity
-//       style={styles.button}
-//       onPress={handleSearch}
-//     >
-//       <Text style={styles.buttonText}>Search</Text>
-//     </TouchableOpacity>
-
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-// container: {
-//   flex: 1,
-//   padding: 20,
-// },
-// title: {
-//   fontSize: 20,
-//   fontWeight: 'bold',
-//   marginTop: 30,
-//   marginBottom: 20,
-// },
-// input: {
-//   height: 40,
-//   borderColor: 'gray',
-//   borderWidth: 1,
-//   marginBottom: 10,
-// },
-// button: {
-//   backgroundColor: 'gray',
-//   padding: 10,
-//   borderRadius: 5,
-// },
-// buttonText: {
-//   color: 'white',
-//   textAlign: 'center',
-// },
-// });
-
-
