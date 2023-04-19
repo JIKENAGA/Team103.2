@@ -17,7 +17,6 @@ export default function SearchScreen(props) {
 
   // Query the database for short titles that contain the inputted search
   const handleSearch = () => {
-    console.log(`Searching for "${searchTerm}"...`);
     const dataRef = ref(db, 'classes');
     const queryRef = query(
       dataRef,
@@ -33,7 +32,6 @@ export default function SearchScreen(props) {
           results.push(data);
         }
       });
-      console.log(results);
       setSearchResults(results);
     });
   };
@@ -92,12 +90,18 @@ export default function SearchScreen(props) {
         <Text style={styles.title}>Search Classes</Text>
       </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Enter search term"
-        value={searchTerm}
-        onChangeText={(text) => setSearchTerm(text)}
-      />
+
+      <View style={styles.input}>
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Enter search term"
+          value={searchTerm}
+          onChangeText={(text) => setSearchTerm(text)}
+        />
+        <View style={[styles.iconContainer]}>
+          <Ionicons name="search" size={25} color="gray" />
+        </View>
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={handleSearch}>
         <Text style={styles.buttonText}>Search</Text>
@@ -135,6 +139,8 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   button: {
     backgroundColor: 'gray',
@@ -183,5 +189,13 @@ const styles = StyleSheet.create({
   },
   courseIdText: {
     color: '#8a000d'
+  },
+  TextInput: {
+    height: 50,
+    flex: 1,
+    padding: 10,
+  },
+  iconContainer: {
+    paddingRight: 5,
   }
 });
