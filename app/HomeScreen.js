@@ -10,14 +10,16 @@ import {Ionicons} from '@expo/vector-icons';
 import {getAuth} from 'firebase/auth';
 import {ref, query, orderByChild, onValue, equalTo } from 'firebase/database';
 import {db} from './Firebase/firebase';
+import { useIsFocused } from '@react-navigation/native';
 
 
 function HomeScreen(props) {
   // Makes handleSearch run when this screen gets navigated to
+  const isFocused = useIsFocused();
   useEffect(() => {
-    handleSearch();
-    }, []);
-
+    handleSearch()
+  }, [isFocused]);
+  
     // Navigate to log in screen
     const onPressLogin = () => {
         props.navigation.navigate('LoginScreen');
@@ -39,7 +41,7 @@ function HomeScreen(props) {
     const auth = getAuth();
 
     // Handles querying the classRelation table to get the courseIds that the user is in and then queries the classes table to get the other information about the classes
-    const handleSearch = () => {
+    const handleSearch = async () => {
       const userId = auth.currentUser.uid;
       const classRelationRef = ref(db, 'classRelation');
 
@@ -86,7 +88,7 @@ function HomeScreen(props) {
       }
 
       // if statement makes it so the add button gets added to the end of the list
-      if (index === searchResults.length - 1) {
+      if (index === searchResults.length) {
         return (
           <View>
             <TouchableOpacity style = {styles.addClass} onPress={onPressSearchClass}>
@@ -107,7 +109,15 @@ function HomeScreen(props) {
       );
     };
 
-      
+    const ExtraButton = ({ onPress }) => {
+      return (
+        <View>
+          <TouchableOpacity style = {styles.addClass} onPress={onPressSearchClass}>
+            <Ionicons name = "add" size = {25} color = "black"></Ionicons>
+          </TouchableOpacity>
+        </View>
+      );
+    };
     return(
         <View style = {styles.container}>
 
@@ -122,6 +132,7 @@ function HomeScreen(props) {
             renderItem={renderSearchResult}
             keyExtractor={(item) => item['Course']}
             style={styles.resultsList}
+            ListFooterComponent={<ExtraButton/>}
             />
             
           
@@ -136,7 +147,7 @@ function HomeScreen(props) {
 
             {/* Home icon in navigation bar */}
             <View style={styles.bottomBox}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handleSearch}>
                 <Ionicons name="home" size={25} color="black" />
               </TouchableOpacity>
             </View>
@@ -240,6 +251,6 @@ const styles = StyleSheet.create({
     courseIdText: {
       color: '#8a000d'
     }
-})
+});
 
 export default HomeScreen;
