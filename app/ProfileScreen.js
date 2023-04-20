@@ -1,28 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Modal } from 'react-native';
-import { getAuth } from "firebase/auth";
+import { getAuth, updateEmail } from "firebase/auth";
 import { ref, onValue, update } from "firebase/database";
 import { db } from './Firebase/firebase';
 import {Ionicons} from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons'
+import { AntDesign } from '@expo/vector-icons';
 
 
-const ProfileScreen = () => {
+
+const ProfileScreen = (props) => {
+  const auth = getAuth();
+  const userid = auth.currentUser.uid;
+
   const [firstName, setFirstName] = useState(null);
   const [lastName, setLastName] = useState(null);
-  const [email, setEmail] = useState(null);
+  const email = auth.currentUser.email
+  //const [email, setEmail] = useState(null);
   const [displayName, setDisplayName] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState(null);
   const [newFirstName, setNewFirstName] = useState(null);
   const [newLastName, setNewLastName] = useState(null);
+  const [newEmail, setNewEmail] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [nameModalVisible, setNameModalVisible] = useState(false);
   const [lastNameModalVisible, setLastNameModalVisible] = useState(false);
-
-  const auth = getAuth();
-  const userid = auth.currentUser.uid;
-
+  const [emailModalVisible, setEmailModalVisible] = useState(false);
 
   useEffect(() => {
     const userInfoRef = ref(db, 'userinfo/' + userid);
@@ -31,10 +34,22 @@ const ProfileScreen = () => {
       const userData = snapshot.val();
       setFirstName(userData.firstName);
       setLastName(userData.lastName);
-      setEmail(userData.email);
+      //setEmail(userData.email);
       setDisplayName(userData.displayName);
     });
   }, []);
+
+    // Navigatio handles
+    const onPressGoHome = () => {
+      props.navigation.navigate('HomeScreen');
+    };
+    const onPressLogin = () => {
+      props.navigation.navigate('LoginScreen');
+    };
+    const onPressGoProfile = () => {
+      props.navigation.navigate('ProfileScreen');
+    };
+
 
   const handleSave = () => {
     const userRef = ref(db, 'userinfo/' + userid);
@@ -50,6 +65,16 @@ const ProfileScreen = () => {
     }
     if (newLastName !== null && newLastName !== lastName) {
       updates['lastName'] = newLastName;
+    }
+    if (newEmail !== null && newEmail !== email) {
+      //updates['email'] = newEmail;
+      updateEmail(auth.currentUser, newEmail).then(() => {
+        // Email updated!
+        // ...
+      }).catch((error) => {
+        // An error occurred
+        // ...
+      });
     }
   
     // Check if any fields were updated
@@ -75,12 +100,14 @@ const ProfileScreen = () => {
     setNewDisplayName(displayName);
     setNewFirstName(firstName);
     setNewLastName(lastName);
+    setNewEmail(email);
 
     // Exit edit mode
     setEditMode(false);
   };
 
   return (
+    <View style={styles.screenContainer}> 
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
         <Image
@@ -216,49 +243,96 @@ const ProfileScreen = () => {
   </View>
 </Modal>
 
-
-
-
-      {/* <Modal
+{/* Update Email */}
+<View style={styles.infoContainer}>
+        <Text style={styles.infoLabel}>Email:</Text>
+</View>
+<View style={styles.editableItems}>
+<TouchableOpacity onPress={() => setEmailModalVisible(true)}>
+        <Text style={styles.infoValue}>{email}</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => setEmailModalVisible(true)}>
+          <AntDesign name="edit" size={16} color="gray" />
+        </TouchableOpacity>
+</View>
+<Modal
   animationType="slide"
-  visible={modalVisible}
+  visible={emailModalVisible}
   onRequestClose={() => {
-    setModalVisible(false);
+    setEmailModalVisible(false);
   }}
 >
   <View style={styles.modalContainer}>
-      {editMode ? (
-        <View>
-          <TextInput
-            style={styles.input}
-            value={displayName}
-            onChangeText={setDisplayName}
-            placeholder="Display Name"
-          />
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Ionicons name="checkmark-outline" size={15} color="green" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={handleCancelEdit}>
-            <Ionicons name="close" size={15} color="red" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : null} </Modal> */}
-      <View style={styles.infoContainer}>
+  <Text>Update Your Email:</Text>
+    <TextInput
+      style={styles.input}
+      value={newEmail}
+      onChangeText={setNewEmail}
+      placeholder="New Email"
+    />
+    
+    <View style={styles.buttonContainer}>
+      <TouchableOpacity style={styles.saveButton}  onPress={() => {
+          setEmailModalVisible(false);
+          handleSave();
+        }}>
+        <Ionicons name="checkmark-outline" size={20} color="green" />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.cancelButton} onPress={() => {
+          setEmailModalVisible(false);
+          handleCancelEdit();
+        }}>
+        <Ionicons name="close" size={20} color="red" />
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
+      {/* <View style={styles.infoContainer}>
         <Text style={styles.infoLabel}>Email:</Text>
         <TouchableOpacity onPress={() => setEditMode(true)}>
         <Text style={styles.infoValue}>{email}</Text></TouchableOpacity>
-      </View>
+      </View> */}
+
       <View style={styles.infoContainer}>
         <Text style={styles.infoLabel}>Bio:</Text>
         <Text style={styles.infoValue}>No bio</Text>
       </View>
     </View>
+
+
+    {/* Navigation Bar */}
+    <View style={styles.bottomContainer}>
+            {/* "Log out" in navigation bar */}
+            <View style={styles.bottomBox}>
+              <TouchableOpacity
+                onPress={onPressLogin}>
+                  <Text> Log out</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Home icon in navigation bar */}
+            <View style={styles.bottomBox}>
+              <TouchableOpacity onPress={onPressGoHome}>
+                <Ionicons name="home" size={25} color="black" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Profile icon in navigation bar */}
+            <View style={styles.bottomBox}>
+              <TouchableOpacity onPress={onPressGoProfile}>
+                <Ionicons name="person-circle-sharp" size={25} color="black" />
+              </TouchableOpacity>
+            </View>
+          </View>
+    </View>
+    
   );
 };
 
 const styles = StyleSheet.create({
+  screenContainer:{
+    flex: 18,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -314,124 +388,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     paddingHorizontal: 20,
-  }
+  },
+  bottomBox:{
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 0.5,
+    borderColor: '#545147',
+    verticalAlign: 'bottom',
+  },
+  bottomContainer: {
+
+    height: 80,
+    backgroundColor: 'grey',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: "flex-end"
+    
+  },
 
 });
 
 export default ProfileScreen;
-// import React, { useEffect, useState } from 'react';
-// import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-// import { getAuth } from "firebase/auth";
-// import { ref, onValue, update } from "firebase/database";
-// import { db } from './Firebase/firebase';
-
-// const ProfileScreen = () => {
-//   const [firstName, setFirstName] = useState(null);
-//   const [lastName, setLastName] = useState(null);
-//   const [email, setEmail] = useState(null);
-//   const [displayName, setDisplayName] = useState(null);
-//   const [editMode, setEditMode] = useState(false);
-//   const [newDisplayName, setNewDisplayName] = useState(null);
-//   const [newFirstName, setNewFirstName] = useState(null);
-//   const [newLastName, setNewLastName] = useState(null);
-
-//   const auth = getAuth();
-//   const userid = auth.currentUser.uid;
-
-//   const handleSave = () => {
-//     const userRef = ref(db, 'userinfo/' + userid);
-//     const updates = {};
-//     if (newDisplayName !== null) {
-//       updates['displayName'] = newDisplayName;
-//     }
-//     if (newFirstName !== null) {
-//       updates['firstName'] = newFirstName;
-//     }
-//     if (newLastName !== null) {
-//       updates['lastName'] = newLastName;
-//     }
-//     update(userRef, updates)
-//       .then(() => {
-//         setEditMode(false);
-//       })
-//       .catch((error) => {
-//         console.error("Update failed: ", error);
-//       });
-//   };
-
-//   const handleCancel = () => {
-//     // Reset state to original values
-//     setNewDisplayName(displayName);
-//     setNewFirstName(firstName);
-//     setNewLastName(lastName);
-
-//     // Exit edit mode
-//     setEditMode(false);
-//   };
-
-//   useEffect(() => {
-//     const userInfoRef = ref(db, 'userinfo/' + userid);
-
-//     onValue(userInfoRef, (snapshot) => {
-//       const userData = snapshot.val();
-//       setFirstName(userData.firstName);
-//       setLastName(userData.lastName);
-//       setEmail(userData.email);
-//       setDisplayName(userData.displayName);
-//       setNewDisplayName(userData.displayName);
-//       setNewFirstName(userData.firstName);
-//       setNewLastName(userData.lastName);
-//     });
-//   }, []);
-
-  
-//   return (
-//     <View style={styles.container}>
-//       <View style={styles.avatarContainer}>
-//         <Image
-//           source={require("./assets/no-user-image.jpg")}
-//           style={styles.avatar}
-//         />
-//         {editMode ? (
-//           <TextInput
-//             style={styles.nameInput}
-//             value={newDisplayName}
-//             onChangeText={(text) => setNewDisplayName(text)}
-//           />
-//         ) : (
-//           <TouchableOpacity onPress={() => setEditMode(true)}>
-//             <Text style={styles.name}>{displayName}</Text>
-//           </TouchableOpacity>        
-          
-//         )}
-//       </View>
-      
-//       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-//         <Text style={styles.buttonText}>Save</Text>
-//       </TouchableOpacity>
-//       <View style={styles.infoContainer}>
-//         <Text style={styles.infoLabel}>Full Name:</Text>
-//         {editMode ? (
-//           <View style={styles.nameInputContainer}>
-//             <TextInput
-//               style={styles.nameInput}
-//               value={newFirstName}
-//               onChangeText={(text) => setNewFirstName(text)}
-//             />
-//             <TextInput
-//               style={styles.nameInput}
-//               value={newLastName}
-//               onChangeText={(text) => setNewLastName(text)}
-//             />
-//           </View>
-//         ) : (
-//           <TouchableOpacity onPress={() => setEditMode(true)}>
-//             <Text style={styles.infoValue}>{firstName} {lastName}</Text>
-//           </TouchableOpacity>
-//         )}
-//       </View>
-//       <View style={styles.infoContainer}>
-//         <Text style={styles.infoLabel}>Email:</Text>
-//         <Text style={styles.infoValue}>{email}</Text>
-//       </View>
-//         </View>)}

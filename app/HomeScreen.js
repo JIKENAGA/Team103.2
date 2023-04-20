@@ -70,6 +70,7 @@ function HomeScreen(props) {
               console.log(data);
             });
             setSearchResults(classesInfo);
+            console.log(searchResults.length)
           });
 
         })
@@ -86,7 +87,7 @@ function HomeScreen(props) {
       }
 
       // if statement makes it so the add button gets added to the end of the list
-      if (index === searchResults.length - 1) {
+      if ((index === searchResults.length - 1) || (searchResults.length == 0)) {
         return (
           <View>
             <TouchableOpacity style = {styles.addClass} onPress={onPressSearchClass}>
