@@ -8,18 +8,22 @@ import {
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons';
 import {getAuth} from 'firebase/auth';
-import {ref, query, orderByChild, onValue, equalTo } from 'firebase/database';
+import {ref, query, orderByChild, onValue, equalTo, get } from 'firebase/database';
 import {db} from './Firebase/firebase';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from "@react-navigation/native";
 
 
 function HomeScreen(props) {
-  // Makes handleSearch run when this screen gets navigated to
   const isFocused = useIsFocused();
+  // Makes handleSearch run when this screen gets navigated to
   useEffect(() => {
-    handleSearch()
-  }, [isFocused]);
-  
+      if(isFocused) {
+        
+        handleSearch();
+        console.log('test');
+      }
+    }, [props, isFocused]);
+
     // Navigate to log in screen
     const onPressLogin = () => {
         props.navigation.navigate('LoginScreen');
@@ -44,59 +48,58 @@ function HomeScreen(props) {
     const handleSearch = async () => {
       const userId = auth.currentUser.uid;
       const classRelationRef = ref(db, 'classRelation');
-
+    
       // Query the classRelation table to get all nodes with userId equal to the current user's id
       const queryRef = query(classRelationRef, orderByChild('userId'), equalTo(userId));
       const courseIdList = [];
-
+    
       // Add all of the courseIds the user is in to list
-      onValue(queryRef, (snapshot) => {
-        snapshot.forEach((child) => {
-          const data = child.val();
-          courseIdList.push(data.courseId);
-        });
-        console.log(courseIdList);
+      const querySnapshot = await get(queryRef);
+      querySnapshot.forEach((child) => {
+        const data = child.val();
+        courseIdList.push(data.courseId);
       });
-
+      console.log(courseIdList);
+    
       // Query the classes table with the courseIds from courseIdList to get the information about the classes and adds it to searchResults
-      classesInfo = []
-      const classesRef = ref(db, 'classes')
-      Promise.all(
-        courseIdList.map((courseId) => {
-          const classQueryRef = query(classesRef, orderByChild('Course'), equalTo(courseId));
-
-          onValue(classQueryRef, (snapshot) => {
-            snapshot.forEach((child) => {
-              const data = child.val();
-              classesInfo.push(data);
-              console.log(data);
-            });
-            setSearchResults(classesInfo);
+      const classesRef = ref(db, 'classes');
+      const classPromises = courseIdList.map((courseId) => {
+        const classQueryRef = query(classesRef, orderByChild('Course'), equalTo(courseId));
+        return get(classQueryRef);
+      });
+    
+      Promise.all(classPromises).then((snapshots) => {
+        const classesInfo = [];
+        snapshots.forEach((snapshot) => {
+          snapshot.forEach((child) => {
+            const data = child.val();
+            classesInfo.push(data);
           });
-
-        })
-      )
-
+        });
+        setSearchResults(classesInfo);
+        console.log('test', searchResults);
+      });
     };
+
+      const addClassButton = ({ onPress }) => {
+        return (
+          <TouchableOpacity style={styles.addClass} onPress={onPressSearchClass}>
+            <Ionicons name="add" size={25} color="black" />
+          </TouchableOpacity>
+        );
+      };
+
 
     // Collects the information from classesInfo and creates buttons based on that info
     const renderSearchResult = ({ item, index }) => {
+
+
 
       // Navigate to GroupScreen, "{courseId: item.Course}" sends the courseId of the corresponding class' button to the GroupScreen to be used in querying the groups table
       const onPressGroupScreen = () => {
         props.navigation.navigate('GroupScreen', {courseId: item.Course});
       }
 
-      // if statement makes it so the add button gets added to the end of the list
-      if (index === searchResults.length) {
-        return (
-          <View>
-            <TouchableOpacity style = {styles.addClass} onPress={onPressSearchClass}>
-              <Ionicons name = "add" size = {25} color = "black"></Ionicons>
-            </TouchableOpacity>
-          </View>
-        );
-      }
 
       // Class Buttons
       return (
@@ -109,15 +112,7 @@ function HomeScreen(props) {
       );
     };
 
-    const ExtraButton = ({ onPress }) => {
-      return (
-        <View>
-          <TouchableOpacity style = {styles.addClass} onPress={onPressSearchClass}>
-            <Ionicons name = "add" size = {25} color = "black"></Ionicons>
-          </TouchableOpacity>
-        </View>
-      );
-    };
+      
     return(
         <View style = {styles.container}>
 
@@ -132,7 +127,7 @@ function HomeScreen(props) {
             renderItem={renderSearchResult}
             keyExtractor={(item) => item['Course']}
             style={styles.resultsList}
-            ListFooterComponent={<ExtraButton/>}
+            ListFooterComponent={addClassButton}
             />
             
           
@@ -147,7 +142,7 @@ function HomeScreen(props) {
 
             {/* Home icon in navigation bar */}
             <View style={styles.bottomBox}>
-              <TouchableOpacity onPress={handleSearch}>
+              <TouchableOpacity>
                 <Ionicons name="home" size={25} color="black" />
               </TouchableOpacity>
             </View>
@@ -251,6 +246,6 @@ const styles = StyleSheet.create({
     courseIdText: {
       color: '#8a000d'
     }
-});
+})
 
 export default HomeScreen;
