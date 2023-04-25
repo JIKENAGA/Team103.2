@@ -14,102 +14,81 @@ import {
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons';
 import { getAuth, currentUser,} from 'firebase/auth';
-import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue, push, set, equalTo, get } from 'firebase/database';
+import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue, push, set, equalTo } from 'firebase/database';
 import { db} from './Firebase/firebase';
 
-
-
-function GroupScreen(props) {
+function CreateGroup(props) {
     const { courseId } = props.route.params;
-    const [groupData, setGroupData] = useState(null);
+    const [groupName, setGroupName] = useState("")
 
-
-    useEffect(() => {
-        // This code will run after the first render of the component
-        handleGroupSearch();
-      }, []);
-
+    
+    
     const onPressLogin = () => {
         props.navigation.navigate('LoginScreen');
       };
       const onPressHome = () => {
         props.navigation.navigate('HomeScreen');
       };
+      const onPressGroupScreen = () => {
+        props.navigation.navigate('GroupScreen', {courseId});
+      };
 
     // Navigate to Profile screen
     const onPressGoProfile = () => {
       props.navigation.navigate('ProfileScreen');
     };
+    const onPressCreateGroup = () => {
+        console.log(courseId)
+        if (!groupName){
+            alert("Please enter a Group Name of at least 2 letters")
+            return
+        }
+        const groupsRef = ref(db, 'groups')
+        const newGroupsRef = push(groupsRef)
+        set(newGroupsRef, {
+            course: courseId,
+            groupName: groupName
+          });
+        props.navigation.navigate('GroupScreen', {courseId})
+    }
 
     // Navigate to class search screen
-    const onPressCreateGroup = () => {
-      props.navigation.navigate('CreateGroup',{courseId});
-    };
 
-    const onPressHomeScreen = () => {
-      props.navigation.navigate('HomeScreen');
-    };
-    
-    const handleGroupSearch = async () => {
-      const groupsRef = ref(db, 'groups');
-      const queryRef = query(groupsRef, orderByChild('course'), equalTo(courseId));
-      const groupIdList = [];
-
-      onValue(queryRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const itemsArray = Object.entries(data).map(([key, value]) => ({
-            id: key,
-            groupname: value.groupName,
-          }));
-          console.log(itemsArray);
-          setGroupData(itemsArray)
-        } else {
-          console.log("No items found");
-        }})
-
-    };
-
-    const handleButtonPress = (id) => {
-      console.log(id)
-    }
-
-    const renderGroups = ({item}) =>{
-
-    }
-      return (
+    return (
         <View style = {styles.container}>
           <View style = {styles.topunobtainable}></View>
 
           <View style={styles.topContainer2}>
             <View style = {styles.iconContainer}>
+              <TouchableOpacity  onPress={onPressGroupScreen}>
+                <Ionicons name="md-arrow-back" size={40} color="black" />
+              </TouchableOpacity>
             </View>
             <View style = {styles.topcontainer}>
-              <Text style={styles.topText}>Groups</Text>
+              <Text style={styles.topText}>Create Group</Text>
             </View>
             <View style = {styles.iconContainer}>
 
             </View>
           </View>
-          <View style = {styles.createGroup}>
-            <TouchableOpacity onPress= {onPressCreateGroup}>
-              <Text>Create Group</Text>
-            </TouchableOpacity>
-          </View>
           <View style = {styles.flatlist}>
-          <FlatList
-            data={groupData}
-            renderItem={({ item }) => (
-              <View>
-                {/* <Button title={item.groupname} 
-                onPress={() => handleButtonPress(item.id)} /> */}
-                <TouchableOpacity style={styles.result} onPress={() => handleButtonPress(item.id)}>
-                  <Text style = {styles.resultText}>Group Name: {item.groupname}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-            keyExtractor={(item) => item.id}
-          />
+            <View style={styles.inputView}>
+
+            <TextInput
+                style={styles.TextInput}
+                placeholder="Group Name"
+                placeholderTextColor="#005990"
+                onChangeText={(groupName) => setGroupName(groupName)}
+            /> 
+            </View> 
+            <TouchableOpacity 
+                style={styles.loginBtn}
+                onPress={onPressCreateGroup} >
+                <Text
+                title = "HomeSreen"
+                style={styles.loginText}
+                >Create Group</Text> 
+      </TouchableOpacity> 
           </View>
           <View style={styles.bottomContainer}>
             {/* "Log out" in navigation bar */}
@@ -142,6 +121,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
+
+  topcontainer: {
+    flex:4,
+    justifyContent: 'center',
+    alignItems: 'center',
+
+  },
   topContainer2:{
     flexDirection: 'row',
     flex: 1,
@@ -151,20 +137,15 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderBottomWidth: 3,
   },
-
-  topcontainer: {
-    flex:4,
-    justifyContent: 'center',
-    alignItems: 'center',
-
-  },
   iconContainer:{
     flex:2,
     justifyContent: 'center',
     alignItems: 'center',
   },
   flatlist:{
-    flex:11
+    flex:12,
+    alignItems:'center',
+    justifyContent: 'center',
   },
 
   bottomContainer: {
@@ -172,6 +153,34 @@ const styles = StyleSheet.create({
     backgroundColor: 'grey',
     justifyContent: 'center',
     flexDirection: 'row',
+  },
+  TextInput: {
+    height: 50,
+    flex: 1,
+    padding: 10,
+    //marginLeft: 20,
+  },
+  inputView: {
+    backgroundColor: "#C6C8CA",
+    borderRadius: 30,
+    width: "70%",
+    height: 45,
+    marginBottom: 20,
+    alignItems: "center",
+    flexDirection: 'row',
+  },
+  iconWrapper: {
+    marginTop: 8,
+    marginRight: 10,
+  },
+  loginBtn: {
+    width: "80%",
+    borderRadius: 25,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40,
+    backgroundColor: "#BBC0C4",
   },
 
   topunobtainable:{
@@ -230,8 +239,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
     height: 80,
     alignItems: 'center',
   },
@@ -244,4 +251,4 @@ const styles = StyleSheet.create({
     color: '#8a000d'
   }
 })
-export default GroupScreen;
+export default CreateGroup;
