@@ -121,15 +121,15 @@ function HomeScreen(props) {
           <View style={styles.topcontainer}>
             <Text style={styles.topText}>Wac Connect</Text>
           </View>
-
-          <FlatList
-            data={searchResults}
-            renderItem={renderSearchResult}
-            keyExtractor={(item) => item['Course']}
-            style={styles.resultsList}
-            ListFooterComponent={addClassButton}
+          <View style = {styles.flatlist}>
+            <FlatList
+              data={searchResults}
+              renderItem={renderSearchResult}
+              keyExtractor={(item) => item['Course']}
+              style={styles.resultsList}
+              ListFooterComponent={addClassButton}
             />
-            
+          </View>
           
           <View style={styles.bottomContainer}>
             {/* "Log out" in navigation bar */}
@@ -171,7 +171,11 @@ const styles = StyleSheet.create({
       borderColor: 'black',
       borderBottomWidth: 3,
       opacity: .8,
-      height: 80,
+      flex:1
+
+    },
+    flatlist:{
+      flex:12
     },
 
     bottomContainer: {
@@ -184,12 +188,12 @@ const styles = StyleSheet.create({
     topunobtainable:{
       backgroundColor: '#8a000d',
       opacity: .8,
-      height: 30
+      flex: 1
     },
 
     addClass: {
       backgroundColor: 'lightgray',
-      padding: 10,
+      paddingBottom: 10,
       borderRadius: 5,
       marginBottom: 10,
       height: 80,
@@ -208,7 +212,7 @@ const styles = StyleSheet.create({
     },
 
     bottomBox:{
-      flex: 1,
+      flex: 2,
       justifyContent: 'center',
       alignItems: 'center',
       borderWidth: 0.5,
@@ -222,7 +226,7 @@ const styles = StyleSheet.create({
     },
 
     resultsList: {
-      marginTop: 20,
+      marginTop: 0,
     },
 
     result: {
@@ -236,11 +240,6 @@ const styles = StyleSheet.create({
 
     resultText: {
       fontSize: 16,
-    },
-
-    buttonContainer: {
-      alignItems: 'center',
-      marginTop: 20,
     },
 
     courseIdText: {
