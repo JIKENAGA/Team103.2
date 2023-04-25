@@ -175,7 +175,8 @@ const styles = StyleSheet.create({
 
     },
     flatlist:{
-      flex:12
+      flex:12,
+      marginTop: 10
     },
 
     bottomContainer: {

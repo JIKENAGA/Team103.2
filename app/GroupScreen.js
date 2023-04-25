@@ -164,7 +164,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   flatlist:{
-    flex:11
+    flex:11,
+    marginTop: 10
   },
 
   bottomContainer: {
