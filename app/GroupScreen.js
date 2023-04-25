@@ -20,7 +20,10 @@ import { db} from './Firebase/firebase';
 
 
 function GroupScreen(props) {
+    // grabs the course ID from the button that got pressed on the home screen or grabs it from the createGroup screen
     const { courseId } = props.route.params;
+
+    // sets variable group data for the buttons
     const [groupData, setGroupData] = useState(null);
 
 
@@ -28,10 +31,11 @@ function GroupScreen(props) {
         // This code will run after the first render of the component
         handleGroupSearch();
       }, []);
-
+    // goes to login screen when sign out is pressed
     const onPressLogin = () => {
         props.navigation.navigate('LoginScreen');
       };
+    // goes to home screen when home button is pressed
       const onPressHome = () => {
         props.navigation.navigate('HomeScreen');
       };
@@ -46,23 +50,30 @@ function GroupScreen(props) {
       props.navigation.navigate('CreateGroup',{courseId});
     };
 
-    const onPressHomeScreen = () => {
-      props.navigation.navigate('HomeScreen');
-    };
-    
+    //This is loaded every time the page is navigated to
     const handleGroupSearch = async () => {
+
+      //These refs go to the groups, then find each group that matches the corresponding course ID
       const groupsRef = ref(db, 'groups');
       const queryRef = query(groupsRef, orderByChild('course'), equalTo(courseId));
-      const groupIdList = [];
 
+      //This will add all of the items to group data
       onValue(queryRef, (snapshot) => {
+        // data is a dictionary with all the objects that the query ref provides (this includes every piece of information)
         const data = snapshot.val();
+        console.log(data)
+        
         if (data) {
+          // this maps every item in data to create a new object that has the things i want in it. The key is the name of the object and
+          // the value si the dictionary attached to the object.
           const itemsArray = Object.entries(data).map(([key, value]) => ({
+            // each item in itemsArray is an object with attributes that are created using the above mapping
             id: key,
             groupname: value.groupName,
+            course: courseId,
           }));
           console.log(itemsArray);
+          // sets group data to the new array
           setGroupData(itemsArray)
         } else {
           console.log("No items found");
@@ -74,9 +85,6 @@ function GroupScreen(props) {
       console.log(id)
     }
 
-    const renderGroups = ({item}) =>{
-
-    }
       return (
         <View style = {styles.container}>
           <View style = {styles.topunobtainable}></View>
@@ -98,16 +106,18 @@ function GroupScreen(props) {
           </View>
           <View style = {styles.flatlist}>
           <FlatList
+          // Sets the data for the flat list to the group data
             data={groupData}
+            // this renders each item inside group data with each object as an item passed into it
             renderItem={({ item }) => (
+              // creates a view that has a touchable opacity for each object
               <View>
-                {/* <Button title={item.groupname} 
-                onPress={() => handleButtonPress(item.id)} /> */}
                 <TouchableOpacity style={styles.result} onPress={() => handleButtonPress(item.id)}>
                   <Text style = {styles.resultText}>Group Name: {item.groupname}</Text>
                 </TouchableOpacity>
               </View>
             )}
+            //the key for the item is item ID. This may want to be changed to course if needed.
             keyExtractor={(item) => item.id}
           />
           </View>
