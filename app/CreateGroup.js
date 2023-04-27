@@ -14,13 +14,16 @@ import {
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons';
 import { getAuth, currentUser,} from 'firebase/auth';
-import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue, push, set, equalTo } from 'firebase/database';
+import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue, push, set, equalTo, get } from 'firebase/database';
 import { db} from './Firebase/firebase';
+// import { group } from "console";
 
 function CreateGroup(props) {
     const { courseId } = props.route.params;
-    const [groupName, setGroupName] = useState("")
-
+    const [groupName, setGroupName] = useState("");
+    const [groupMeetingDays, setGroupMeetingDays] = useState("");
+    const [groupMeetingTime, setGroupMeetingTime] = useState("");
+    const [groupDesc, setGroupDesc] = useState("");
     
     
     const onPressLogin = () => {
@@ -37,22 +40,53 @@ function CreateGroup(props) {
     const onPressGoProfile = () => {
       props.navigation.navigate('ProfileScreen');
     };
+
+    const auth = getAuth();
+
     const onPressCreateGroup = () => {
-        console.log(courseId)
-        if (!groupName){
-            alert("Please enter a Group Name of at least 2 letters")
+        //console.log(courseId)
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+        if (!groupName || !groupMeetingDays || !groupMeetingTime){
+            alert("Please fill out all required fields")
             return
         }
-        const groupsRef = ref(db, 'groups')
-        const newGroupsRef = push(groupsRef)
-        set(newGroupsRef, {
-            course: courseId,
-            groupName: groupName
-          });
-        props.navigation.navigate('GroupScreen', {courseId})
-    }
 
-    // Navigate to class search screen
+        if (!groupDesc) {
+          const userId = currentUser.uid;
+          const userRef = ref(db, `userinfo/${userId}`);
+          console.log(userRef);
+          get(userRef).then((snapshot) => {
+            const userInfo = snapshot.val();
+            const displayName = userInfo.displayName;
+            setGroupDesc(`${displayName}'s Group`);
+          });
+        }
+
+          const groupsRef = ref(db, 'groups')
+          const newGroupsRef = push(groupsRef)
+          const groupId = newGroupsRef.key;
+          set(newGroupsRef, {
+              course: courseId,
+              groupName: groupName,
+              groupMeetingDays,
+              groupMeetingTime,
+              groupDesc,
+              groupId
+            });
+        
+          const userId = auth.currentUser.uid;
+          const groupRelationRef = ref(db, 'groupRelation');
+          const newGroupRelationRef = push(groupRelationRef);
+          set(newGroupRelationRef, {
+            userId,
+            groupId
+          });
+          alert("Group Created")
+        
+          props.navigation.navigate('GroupScreen', {courseId})
+        console.log(groupDesc)
+    }
 
     return (
         <View style = {styles.container}>
@@ -61,7 +95,7 @@ function CreateGroup(props) {
           <View style={styles.topContainer2}>
             <View style = {styles.iconContainer}>
               <TouchableOpacity  onPress={onPressGroupScreen}>
-                <Ionicons name="md-arrow-back" size={40} color="black" />
+                <Ionicons name="md-arrow-back" size={30} color="white" />
               </TouchableOpacity>
             </View>
             <View style = {styles.topcontainer}>
@@ -76,11 +110,40 @@ function CreateGroup(props) {
 
             <TextInput
                 style={styles.TextInput}
-                placeholder="Group Name"
-                placeholderTextColor="#005990"
+                placeholder="Group Name*"
+                placeholderTextColor="black"
                 onChangeText={(groupName) => setGroupName(groupName)}
             /> 
+            
             </View> 
+
+            <View style={styles.inputView}>
+            <TextInput
+                style={styles.TextInput}
+                placeholder="Meeting Days*"
+                placeholderTextColor="black"
+                onChangeText={(groupMeetingDays) => setGroupMeetingDays(groupMeetingDays)}
+            /> 
+            </View> 
+
+            <View style={styles.inputView}>
+            <TextInput
+                style={styles.TextInput}
+                placeholder="Meeting Time*"
+                placeholderTextColor="black"
+                onChangeText={(groupMeetingTime) => setGroupMeetingTime(groupMeetingTime)}
+            /> 
+            </View> 
+
+            <View style={styles.inputView}>
+            <TextInput
+                style={styles.TextInput}
+                placeholder="Short Description"
+                placeholderTextColor="black"
+                onChangeText={(groupDesc) => setGroupDesc(groupDesc)}
+            /> 
+            </View> 
+
             <TouchableOpacity 
                 style={styles.loginBtn}
                 onPress={onPressCreateGroup} >
@@ -141,6 +204,8 @@ const styles = StyleSheet.create({
     flex:2,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 8,
+    marginRight: 20
   },
   flatlist:{
     flex:12,

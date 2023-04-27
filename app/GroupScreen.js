@@ -16,26 +16,28 @@ import {Ionicons} from '@expo/vector-icons';
 import { getAuth, currentUser,} from 'firebase/auth';
 import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue, push, set, equalTo, get } from 'firebase/database';
 import { db} from './Firebase/firebase';
+import { useIsFocused } from "@react-navigation/native";
 
 
 
 function GroupScreen(props) {
-    // grabs the course ID from the button that got pressed on the home screen or grabs it from the createGroup screen
     const { courseId } = props.route.params;
-
-    // sets variable group data for the buttons
     const [groupData, setGroupData] = useState(null);
+    const isFocused = useIsFocused();
 
 
     useEffect(() => {
-        // This code will run after the first render of the component
-        handleGroupSearch();
-      }, []);
-    // goes to login screen when sign out is pressed
+        if(isFocused) {
+          
+          handleGroupSearch();
+          console.log('searchresults', searchResults);
+          //console.log('test');
+        }
+      }, [props, isFocused, searchResults]);
+
     const onPressLogin = () => {
         props.navigation.navigate('LoginScreen');
       };
-    // goes to home screen when home button is pressed
       const onPressHome = () => {
         props.navigation.navigate('HomeScreen');
       };
@@ -50,41 +52,100 @@ function GroupScreen(props) {
       props.navigation.navigate('CreateGroup',{courseId});
     };
 
-    //This is loaded every time the page is navigated to
+    const onPressHomeScreen = () => {
+      props.navigation.navigate('HomeScreen');
+    };
+
+
+    const auth = getAuth();
+    const [searchResults, setSearchResults] = useState([]);
+
     const handleGroupSearch = async () => {
 
-      //These refs go to the groups, then find each group that matches the corresponding course ID
-      const groupsRef = ref(db, 'groups');
-      const queryRef = query(groupsRef, orderByChild('course'), equalTo(courseId));
-
-      //This will add all of the items to group data
-      onValue(queryRef, (snapshot) => {
-        // data is a dictionary with all the objects that the query ref provides (this includes every piece of information)
-        const data = snapshot.val();
-        console.log(data)
+        const userId = auth.currentUser.uid;
+        const groupsRef = ref(db, 'groups');
         
-        if (data) {
-          // this maps every item in data to create a new object that has the things i want in it. The key is the name of the object and
-          // the value si the dictionary attached to the object.
-          const itemsArray = Object.entries(data).map(([key, value]) => ({
-            // each item in itemsArray is an object with attributes that are created using the above mapping
-            id: key,
-            groupname: value.groupName,
-            course: courseId,
-          }));
-          console.log(itemsArray);
-          // sets group data to the new array
-          setGroupData(itemsArray)
-        } else {
-          console.log("No items found");
-        }})
-
+        // Query the groups table to get all nodes with courseId equal to the current course's id
+        const queryRef = query(groupsRef, orderByChild('course'), equalTo(courseId));
+        const courseIdList = [];
+        
+        // Add all of the courseIds the user is in to list
+        const querySnapshot = await get(queryRef);
+        querySnapshot.forEach((child) => {
+            const data = child.val();
+            courseIdList.push(data.groupId);
+        });
+        console.log(courseIdList);
+        
+        // Query the groups table with the courseIds from courseIdList to get the information about the groups and adds it to searchResults
+        const groupsInfoRef = ref(db, 'groups');
+        const groupPromises = courseIdList.map((groupId) => {
+            const groupsQueryRef = query(groupsInfoRef, orderByChild('groupId'), equalTo(groupId));
+            return get(groupsQueryRef);
+        });
+        
+        Promise.all(groupPromises).then((snapshots) => {
+            const groupsInfo = [];
+            snapshots.forEach((snapshot) => {
+            snapshot.forEach((child) => {
+                const data = child.val();
+                groupsInfo.push(data);
+            });
+            });
+            setSearchResults(groupsInfo);
+            // console.log('test', classesInfo);
+        });
     };
+
+    const handleAdd = (groupId) => {
+        const userId = auth.currentUser.uid;
+        const groupRelationRef = ref(db, 'groupRelation');
+        const newGroupRelationRef = push(groupRelationRef);
+        set(newGroupRelationRef, {
+          userId,
+          groupId
+        });
+        alert("Group Added")
+        handleGroupSearch();
+      };
+
+    const renderSearchResult = ({ item }) => {
+        const userId = auth.currentUser.uid;
+        const groupRelationRef = ref(db, 'groupRelation');
+
+        // Query the groupRelation table to get all nodes with userId equal to the current user's id
+        const queryRef = query(groupRelationRef, orderByChild('userId'), equalTo(userId));
+        const groupIdList = [];
+        // Add all of the courseIds the user is in to list
+        onValue(queryRef, (snapshot) => {
+        snapshot.forEach((child) => {
+            const data = child.val();
+            groupIdList.push(data['groupId']);
+        });
+        });
+        // If courseId is in list with courses user is in it will not display in results
+        if (groupIdList.includes(item['groupId'])) { 
+        return null;
+        }
+        return (
+        <TouchableOpacity style={styles.result} onPress={() => console.log(`Pressed ${item['groupName']}`)}>
+            <Text style={styles.resultText}>{item['groupName']}</Text>
+            <TouchableOpacity style={styles.addButton} onPress={() => handleAdd(item['groupId'])}>
+                <Ionicons name="add" size={20} color="black" />
+            </TouchableOpacity>
+        </TouchableOpacity>
+        );
+    };
+
+
 
     const handleButtonPress = (id) => {
       console.log(id)
     }
 
+    const renderGroups = ({item}) =>{
+
+    }
       return (
         <View style = {styles.container}>
           <View style = {styles.topunobtainable}></View>
@@ -106,19 +167,9 @@ function GroupScreen(props) {
           </View>
           <View style = {styles.flatlist}>
           <FlatList
-          // Sets the data for the flat list to the group data
-            data={groupData}
-            // this renders each item inside group data with each object as an item passed into it
-            renderItem={({ item }) => (
-              // creates a view that has a touchable opacity for each object
-              <View>
-                <TouchableOpacity style={styles.result} onPress={() => handleButtonPress(item.id)}>
-                  <Text style = {styles.resultText}>Group Name: {item.groupname}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-            //the key for the item is item ID. This may want to be changed to course if needed.
-            keyExtractor={(item) => item.id}
+            data={searchResults}
+            renderItem = {renderSearchResult}
+            keyExtractor={(item) => item['groupId']}
           />
           </View>
           <View style={styles.bottomContainer}>
@@ -174,7 +225,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   flatlist:{
-    flex:11
+    flex:11,
+    marginTop: 10
   },
 
   bottomContainer: {
@@ -248,10 +300,19 @@ const styles = StyleSheet.create({
 
   resultText: {
     fontSize: 16,
+    color: 'black'
   },
 
   courseIdText: {
     color: '#8a000d'
-  }
+  },
+
+  addButton: {
+    position: 'absolute',
+    top: 20,
+    right: 10,
+    padding: 10,
+    borderRadius: 5,
+  },
 })
 export default GroupScreen;

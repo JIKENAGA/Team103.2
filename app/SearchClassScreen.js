@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { db} from './Firebase/firebase';
 import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue, push, set, equalTo } from 'firebase/database';
@@ -14,7 +14,7 @@ export default function SearchScreen(props) {
    props.navigation.navigate('HomeScreen');
   };
 
-
+  
   // Query the database for short titles that contain the inputted search
   const handleSearch = () => {
     const dataRef = ref(db, 'classes');
@@ -48,6 +48,7 @@ export default function SearchScreen(props) {
       courseId
     });
     alert("Course Added")
+    handleSearch();
   };
 
 
