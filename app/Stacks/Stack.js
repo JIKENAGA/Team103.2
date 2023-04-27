@@ -10,6 +10,7 @@ import ProfileScreen from "../ProfileScreen"
 import SearchClassScreen from "../SearchClassScreen"
 import GroupScreen from "../GroupScreen"
 import CreateGroup from "../CreateGroup"
+import MyGroupScreen from "../MyGroupScreen"
 
 export default Stack = () => {
     const AppStack = createStackNavigator();
@@ -25,6 +26,7 @@ export default Stack = () => {
             <AppStack.Screen name = "SearchClassScreen" component = {SearchClassScreen}/>
             <AppStack.Screen name = "GroupScreen" component= {GroupScreen}/> 
             <AppStack.Screen name = "CreateGroup" component = {CreateGroup}/>
+            <AppStack.Screen name = "MyGroupScreen" component = {MyGroupScreen}/>
         </AppStack.Navigator>
     )
 }

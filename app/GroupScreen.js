@@ -16,18 +16,24 @@ import {Ionicons} from '@expo/vector-icons';
 import { getAuth, currentUser,} from 'firebase/auth';
 import { getDatabase, ref, query, orderByChild, startAt, endAt, onValue, push, set, equalTo, get } from 'firebase/database';
 import { db} from './Firebase/firebase';
+import { useIsFocused } from "@react-navigation/native";
 
 
 
 function GroupScreen(props) {
     const { courseId } = props.route.params;
     const [groupData, setGroupData] = useState(null);
+    const isFocused = useIsFocused();
 
 
     useEffect(() => {
-        // This code will run after the first render of the component
-        handleGroupSearch();
-      }, []);
+        if(isFocused) {
+          
+          handleGroupSearch();
+          console.log('searchresults', searchResults);
+          //console.log('test');
+        }
+      }, [props, isFocused, searchResults]);
 
     const onPressLogin = () => {
         props.navigation.navigate('LoginScreen');
@@ -49,26 +55,89 @@ function GroupScreen(props) {
     const onPressHomeScreen = () => {
       props.navigation.navigate('HomeScreen');
     };
-    
+
+
+    const auth = getAuth();
+    const [searchResults, setSearchResults] = useState([]);
+
     const handleGroupSearch = async () => {
-      const groupsRef = ref(db, 'groups');
-      const queryRef = query(groupsRef, orderByChild('course'), equalTo(courseId));
-      const groupIdList = [];
 
-      onValue(queryRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const itemsArray = Object.entries(data).map(([key, value]) => ({
-            id: key,
-            groupname: value.groupName,
-          }));
-          console.log(itemsArray);
-          setGroupData(itemsArray)
-        } else {
-          console.log("No items found");
-        }})
-
+        const userId = auth.currentUser.uid;
+        const groupsRef = ref(db, 'groups');
+        
+        // Query the groups table to get all nodes with courseId equal to the current course's id
+        const queryRef = query(groupsRef, orderByChild('course'), equalTo(courseId));
+        const courseIdList = [];
+        
+        // Add all of the courseIds the user is in to list
+        const querySnapshot = await get(queryRef);
+        querySnapshot.forEach((child) => {
+            const data = child.val();
+            courseIdList.push(data.groupId);
+        });
+        console.log(courseIdList);
+        
+        // Query the groups table with the courseIds from courseIdList to get the information about the groups and adds it to searchResults
+        const groupsInfoRef = ref(db, 'groups');
+        const groupPromises = courseIdList.map((groupId) => {
+            const groupsQueryRef = query(groupsInfoRef, orderByChild('groupId'), equalTo(groupId));
+            return get(groupsQueryRef);
+        });
+        
+        Promise.all(groupPromises).then((snapshots) => {
+            const groupsInfo = [];
+            snapshots.forEach((snapshot) => {
+            snapshot.forEach((child) => {
+                const data = child.val();
+                groupsInfo.push(data);
+            });
+            });
+            setSearchResults(groupsInfo);
+            // console.log('test', classesInfo);
+        });
     };
+
+    const handleAdd = (groupId) => {
+        const userId = auth.currentUser.uid;
+        const groupRelationRef = ref(db, 'groupRelation');
+        const newGroupRelationRef = push(groupRelationRef);
+        set(newGroupRelationRef, {
+          userId,
+          groupId
+        });
+        alert("Group Added")
+        handleGroupSearch();
+      };
+
+    const renderSearchResult = ({ item }) => {
+        const userId = auth.currentUser.uid;
+        const groupRelationRef = ref(db, 'groupRelation');
+
+        // Query the groupRelation table to get all nodes with userId equal to the current user's id
+        const queryRef = query(groupRelationRef, orderByChild('userId'), equalTo(userId));
+        const groupIdList = [];
+        // Add all of the courseIds the user is in to list
+        onValue(queryRef, (snapshot) => {
+        snapshot.forEach((child) => {
+            const data = child.val();
+            groupIdList.push(data['groupId']);
+        });
+        });
+        // If courseId is in list with courses user is in it will not display in results
+        if (groupIdList.includes(item['groupId'])) { 
+        return null;
+        }
+        return (
+        <TouchableOpacity style={styles.result} onPress={() => console.log(`Pressed ${item['groupName']}`)}>
+            <Text style={styles.resultText}>{item['groupName']}</Text>
+            <TouchableOpacity style={styles.addButton} onPress={() => handleAdd(item['groupId'])}>
+                <Ionicons name="add" size={20} color="black" />
+            </TouchableOpacity>
+        </TouchableOpacity>
+        );
+    };
+
+
 
     const handleButtonPress = (id) => {
       console.log(id)
@@ -98,17 +167,9 @@ function GroupScreen(props) {
           </View>
           <View style = {styles.flatlist}>
           <FlatList
-            data={groupData}
-            renderItem={({ item }) => (
-              <View>
-                {/* <Button title={item.groupname} 
-                onPress={() => handleButtonPress(item.id)} /> */}
-                <TouchableOpacity style={styles.result} onPress={() => handleButtonPress(item.id)}>
-                  <Text style = {styles.resultText}>Group Name: {item.groupname}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-            keyExtractor={(item) => item.id}
+            data={searchResults}
+            renderItem = {renderSearchResult}
+            keyExtractor={(item) => item['groupId']}
           />
           </View>
           <View style={styles.bottomContainer}>
@@ -239,10 +300,19 @@ const styles = StyleSheet.create({
 
   resultText: {
     fontSize: 16,
+    color: 'black'
   },
 
   courseIdText: {
     color: '#8a000d'
-  }
+  },
+
+  addButton: {
+    position: 'absolute',
+    top: 20,
+    right: 10,
+    padding: 10,
+    borderRadius: 5,
+  },
 })
 export default GroupScreen;

@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons';
 import {getAuth} from 'firebase/auth';
-import {ref, query, orderByChild, onValue, equalTo, get } from 'firebase/database';
+import {ref, query, orderByChild, onValue, equalTo, get, remove } from 'firebase/database';
 import {db} from './Firebase/firebase';
 import { useIsFocused } from "@react-navigation/native";
 
@@ -20,7 +20,7 @@ function HomeScreen(props) {
       if(isFocused) {
         
         handleSearch();
-        console.log('test');
+        //console.log('test');
       }
     }, [props, isFocused]);
 
@@ -38,6 +38,10 @@ function HomeScreen(props) {
     const onPressSearchClass = () => {
       props.navigation.navigate('SearchClassScreen');
     };
+
+    const onPressMyGroups = () => {
+      props.navigation.navigate('MyGroupScreen')
+    }
 
     // Creates an empty list for the handleSearch function to add data about classes into
     const [searchResults, setSearchResults] = useState([]);
@@ -59,7 +63,7 @@ function HomeScreen(props) {
         const data = child.val();
         courseIdList.push(data.courseId);
       });
-      console.log(courseIdList);
+      //console.log(courseIdList);
     
       // Query the classes table with the courseIds from courseIdList to get the information about the classes and adds it to searchResults
       const classesRef = ref(db, 'classes');
@@ -77,7 +81,7 @@ function HomeScreen(props) {
           });
         });
         setSearchResults(classesInfo);
-        console.log('test', searchResults);
+        //console.log('test', searchResults);
       });
     };
 
@@ -89,6 +93,7 @@ function HomeScreen(props) {
         );
       };
 
+    
 
     // Collects the information from classesInfo and creates buttons based on that info
     const renderSearchResult = ({ item, index }) => {
@@ -100,14 +105,40 @@ function HomeScreen(props) {
         props.navigation.navigate('GroupScreen', {courseId: item.Course});
       }
 
+      // Function to remove classes when trash icon is pressed
+      const removeClass = async () => {
+        const userId = auth.currentUser.uid;
+        const classRelationRef = ref(db, 'classRelation');
+        const queryRef = query(classRelationRef, orderByChild('userId'), equalTo(userId));
+        
+        const querySnapshot = await get(queryRef);
+        querySnapshot.forEach((child) => {
+          const data = child.val();
+          if (data.userId === userId && data.courseId === item.Course) {
+            const nodeRef = ref(db, `classRelation/${child.key}`);
+            remove(nodeRef).then(() => {
+              alert('Class removed successfully');
+            }).catch((error) => {
+              alert('Error removing class');
+            });
+          }
+        });
+        handleSearch();
+      };
+
 
       // Class Buttons
       return (
-        <View style = {styles.classContainer}>
+        <View style={styles.classContainer}>
           <TouchableOpacity style={styles.result} onPress={onPressGroupScreen}>
             <Text style={styles.resultText}>{item['Short Title']}</Text>
             <Text style={styles.courseIdText}>{item['Course']}</Text>
           </TouchableOpacity>
+          <View style={styles.trashCanContainer}>
+            <TouchableOpacity onPress= {removeClass}>
+              <Ionicons name="trash" size={20} color="black" />
+            </TouchableOpacity>
+          </View>
         </View>
       );
     };
@@ -133,26 +164,35 @@ function HomeScreen(props) {
           
           <View style={styles.bottomContainer}>
             {/* "Log out" in navigation bar */}
-            <View style={styles.bottomBox}>
+            <View style={{...styles.bottomBox, borderRightWidth: 2}}>
               <TouchableOpacity
                 onPress={onPressLogin}>
-                  <Text> Log out</Text>
+                  <Text style = {{color: 'white'}}> Log out </Text>
               </TouchableOpacity>
             </View>
 
             {/* Home icon in navigation bar */}
-            <View style={styles.bottomBox}>
+            <View style={{...styles.bottomBox, borderRightWidth: 2}}>
               <TouchableOpacity>
-                <Ionicons name="home" size={25} color="black" />
+                <Ionicons name="home" size={25} color="white" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{...styles.bottomBox, borderRightWidth: 2}}>
+              <TouchableOpacity onPress={onPressMyGroups}>
+                <Ionicons name="list-outline" size={25} color="white" />
               </TouchableOpacity>
             </View>
 
             {/* Profile icon in navigation bar */}
             <View style={styles.bottomBox}>
               <TouchableOpacity onPress={onPressGoProfile}>
-                <Ionicons name="person-circle-sharp" size={25} color="black" />
+                <Ionicons name="person-circle-sharp" size={25} color="white" />
               </TouchableOpacity>
             </View>
+
+            
+
           </View>
         </View>
     )
@@ -180,10 +220,11 @@ const styles = StyleSheet.create({
     },
 
     bottomContainer: {
-      height: 80,
-      backgroundColor: 'grey',
+      height: 70,
+      backgroundColor: '#8a000d',
       justifyContent: 'center',
       flexDirection: 'row',
+      opacity: .8
     },
 
     topunobtainable:{
@@ -216,8 +257,8 @@ const styles = StyleSheet.create({
       flex: 2,
       justifyContent: 'center',
       alignItems: 'center',
-      borderWidth: 0.5,
-      borderColor: '#545147',
+      borderColor: 'black',
+      borderTopWidth: 3
     },
 
     image: {
@@ -245,7 +286,13 @@ const styles = StyleSheet.create({
 
     courseIdText: {
       color: '#8a000d'
-    }
+    },
+
+    trashCanContainer: {
+      position: 'absolute',
+      top: 5,
+      right: 5,
+    },
 })
 
 export default HomeScreen;
