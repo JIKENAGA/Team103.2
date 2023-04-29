@@ -131,8 +131,23 @@ function HomeScreen(props) {
       return (
         <View style={styles.classContainer}>
           <TouchableOpacity style={styles.result} onPress={onPressGroupScreen}>
-            <Text style={styles.resultText}>{item['Short Title']}</Text>
-            <Text style={styles.courseIdText}>{item['Course']}</Text>
+
+            <View style = {styles.shortTitleText}>
+              <Text style={styles.resultText}>{item['Short Title']}</Text>
+            </View>
+
+            <View style = {styles.courseId}>
+              <Text style={styles.courseIdText}>{item['Course']}</Text>
+            </View>
+            
+            <View style = {styles.instructorTextBox}>
+              <Text style = {styles.instructorText}>{item['Instructor']} {item['Instructor 2 Name']}</Text>
+            </View>
+
+            <View style = {styles.meetingTextBox}>
+              <Text style = {styles.meetingText}>{item['MeetingDays']}, {item['Start-End']}</Text>
+            </View>
+
           </TouchableOpacity>
           <View style={styles.trashCanContainer}>
             <TouchableOpacity onPress= {removeClass}>
@@ -241,7 +256,6 @@ const styles = StyleSheet.create({
       height: 80,
       alignItems: 'center',
       justifyContent: 'center'
-
     },
 
     topText: {
@@ -281,7 +295,8 @@ const styles = StyleSheet.create({
     },
 
     resultText: {
-      fontSize: 16,
+      fontSize: 18,
+      textDecorationLine: 'underline'
     },
 
     courseIdText: {
@@ -293,6 +308,38 @@ const styles = StyleSheet.create({
       top: 5,
       right: 5,
     },
+
+    shortTitleText: {
+      position: 'absolute',
+      left: 5,
+      Top: 5,
+    },
+
+    courseId: {
+      position: 'absolute',
+      left: 5,
+      top: 25,
+    },
+
+    instructorTextBox: {
+      position: 'absolute',
+      left: 5,
+      top: 40
+    },
+
+    instructorText: {
+      color: '#20BABD'
+    },
+
+    meetingTextBox: {
+      position: 'absolute',
+      left: 5,
+      top: 56
+    },
+
+    meetingText: {
+      color: '#B38C00'
+    }
 })
 
 export default HomeScreen;

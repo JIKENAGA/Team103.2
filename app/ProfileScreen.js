@@ -49,6 +49,9 @@ const ProfileScreen = (props) => {
     const onPressGoProfile = () => {
       props.navigation.navigate('ProfileScreen');
     };
+    const onPressMyGroups = () => {
+      props.navigation.navigate('MyGroupScreen')
+    }
 
 
   const handleSave = () => {
@@ -303,27 +306,33 @@ const ProfileScreen = (props) => {
     {/* Navigation Bar */}
     <View style={styles.bottomContainer}>
             {/* "Log out" in navigation bar */}
-            <View style={styles.bottomBox}>
+            <View style={{...styles.bottomBox, borderRightWidth: 2}}>
               <TouchableOpacity
                 onPress={onPressLogin}>
-                  <Text> Log out</Text>
+                  <Text style = {{color: 'white'}}> Log out </Text>
               </TouchableOpacity>
             </View>
 
             {/* Home icon in navigation bar */}
-            <View style={styles.bottomBox}>
+            <View style={{...styles.bottomBox, borderRightWidth: 2}}>
               <TouchableOpacity onPress={onPressGoHome}>
-                <Ionicons name="home" size={25} color="black" />
+                <Ionicons name="home" size={25} color="white" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{...styles.bottomBox, borderRightWidth: 2}}>
+              <TouchableOpacity onPress={onPressMyGroups}>
+                <Ionicons name="list-outline" size={25} color="white" />
               </TouchableOpacity>
             </View>
 
             {/* Profile icon in navigation bar */}
             <View style={styles.bottomBox}>
               <TouchableOpacity onPress={onPressGoProfile}>
-                <Ionicons name="person-circle-sharp" size={25} color="black" />
+                <Ionicons name="person-circle-sharp" size={25} color="white" />
               </TouchableOpacity>
             </View>
-          </View>
+      </View>
     </View>
     
   );
@@ -393,18 +402,16 @@ const styles = StyleSheet.create({
     flex: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 0.5,
-    borderColor: '#545147',
-    verticalAlign: 'bottom',
+    borderColor: 'black',
+    borderTopWidth: 3
   },
-  bottomContainer: {
 
-    height: 80,
-    backgroundColor: 'grey',
+  bottomContainer: {
+    height: 70,
+    backgroundColor: '#8a000d',
     justifyContent: 'center',
     flexDirection: 'row',
-    justifyContent: "flex-end"
-    
+    opacity: .8
   },
 
 });
