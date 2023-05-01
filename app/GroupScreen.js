@@ -52,9 +52,9 @@ function GroupScreen(props) {
       props.navigation.navigate('CreateGroup',{courseId});
     };
 
-    const onPressHomeScreen = () => {
-      props.navigation.navigate('HomeScreen');
-    };
+    const onPressMyGroups = () => {
+        props.navigation.navigate('HomeScreen');
+    }
 
 
     const auth = getAuth();
@@ -116,12 +116,12 @@ function GroupScreen(props) {
         // Query the groupRelation table to get all nodes with userId equal to the current user's id
         const queryRef = query(groupRelationRef, orderByChild('userId'), equalTo(userId));
         const groupIdList = [];
-        // Add all of the courseIds the user is in to list
+        // Add all of the groupIds the user is in to list
         onValue(queryRef, (snapshot) => {
-        snapshot.forEach((child) => {
-            const data = child.val();
-            groupIdList.push(data['groupId']);
-        });
+            snapshot.forEach((child) => {
+                const data = child.val();
+                groupIdList.push(data['groupId']);
+            });
         });
         // If courseId is in list with courses user is in it will not display in results
         if (groupIdList.includes(item['groupId'])) { 
@@ -174,24 +174,30 @@ function GroupScreen(props) {
           </View>
           <View style={styles.bottomContainer}>
             {/* "Log out" in navigation bar */}
-            <View style={styles.bottomBox}>
+            <View style={{...styles.bottomBox, borderRightWidth: 2}}>
               <TouchableOpacity
                 onPress={onPressLogin}>
-                  <Text> Log out</Text>
+                  <Text style = {{color: 'white'}}> Log out </Text>
               </TouchableOpacity>
             </View>
 
             {/* Home icon in navigation bar */}
-            <View style={styles.bottomBox}>
-              <TouchableOpacity onPress = {onPressHome}>
-                <Ionicons name="home" size={25} color="black" />
+            <View style={{...styles.bottomBox, borderRightWidth: 2}}>
+              <TouchableOpacity onPress={onPressHome}>
+                <Ionicons name="home" size={25} color="white" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{...styles.bottomBox, borderRightWidth: 2}}>
+              <TouchableOpacity onPress={onPressMyGroups}>
+                <Ionicons name="list-outline" size={25} color="white" />
               </TouchableOpacity>
             </View>
 
             {/* Profile icon in navigation bar */}
             <View style={styles.bottomBox}>
               <TouchableOpacity onPress={onPressGoProfile}>
-                <Ionicons name="person-circle-sharp" size={25} color="black" />
+                <Ionicons name="person-circle-sharp" size={25} color="white" />
               </TouchableOpacity>
             </View>
           </View>
@@ -230,10 +236,11 @@ const styles = StyleSheet.create({
   },
 
   bottomContainer: {
-    height: 80,
-    backgroundColor: 'grey',
+    height: 70,
+    backgroundColor: '#8a000d',
     justifyContent: 'center',
     flexDirection: 'row',
+    opacity: .8
   },
 
   topunobtainable:{
@@ -273,8 +280,8 @@ const styles = StyleSheet.create({
     flex: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 0.5,
-    borderColor: '#545147',
+    borderColor: 'black',
+    borderTopWidth: 3
   },
 
   image: {

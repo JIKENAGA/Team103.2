@@ -92,7 +92,7 @@ function LoginScreen(props) {
       </TouchableOpacity> 
       <TouchableOpacity
       onPress={onPressSignin} >
-        <Text style={styles.signinBtn}>New here? SignIn</Text> 
+        <Text style={styles.signinBtn}>New here? Sign Up</Text> 
       </TouchableOpacity> 
     </View> 
   );

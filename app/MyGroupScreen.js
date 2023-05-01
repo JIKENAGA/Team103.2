@@ -4,7 +4,9 @@ import {
   Text,
   View,
   TouchableOpacity,
-  FlatList
+  FlatList,
+  Button,
+  Modal
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons';
 import {getAuth} from 'firebase/auth';
@@ -92,17 +94,64 @@ function MyGroupScreen(props) {
         });
     };
 
-  
-      
-  
+    const [expandedIndex, setExpandedIndex] = useState(-1);
+
       // Collects the information from classesInfo and creates buttons based on that info
-      const renderSearchResult = ({ item }) => {
+      const renderSearchResult = ({ item, index }) => {
+        // Function to remove group when trashicon is clicked
+        const removeClass = async () => {
+            const userId = auth.currentUser.uid;
+            const groupRelationRef = ref(db, 'groupRelation');
+            const queryRef = query(groupRelationRef, orderByChild('userId'), equalTo(userId));
+            
+            const querySnapshot = await get(queryRef);
+            querySnapshot.forEach((child) => {
+              const data = child.val();
+              if (data.userId === userId && data.groupId === item.groupId) {
+                const nodeRef = ref(db, `groupRelation/${child.key}`);
+                remove(nodeRef).then(() => {
+                  alert('Group removed successfully');
+                }).catch((error) => {
+                  alert('Error removing class');
+                });
+              }
+            });
+            handleGroupSearch();
+          };
+
+          
         // Class Buttons
         return (
           <View style = {styles.classContainer}>
-            <TouchableOpacity style={styles.result} onPress={onPressChat}>
-              <Text style={styles.resultText}>{item['groupName']}</Text>
+            <TouchableOpacity style={styles.result} onPress={() => setExpandedIndex(expandedIndex === index ? -1 : index)}>
+                {/* <TouchableOpacity style={styles.result} onPress={onPressChat}> */}
+
+                    <View style = {styles.shortTitleText}>
+                        <Text style={styles.resultText}>{item['groupName']}</Text>
+                    </View>
+
+                    <View style = {styles.courseId}>
+                        <Text style={styles.courseIdText}>{item['course']}</Text>
+                    </View>
+                    
+                    <View style = {styles.instructorTextBox}>
+                        <Text style = {styles.instructorText}>{item['groupMeetingDays']}, {item['groupMeetingTime']}</Text>
+                    </View>
+
+                    <View style = {styles.meetingTextBox}>
+                        <Text style = {styles.meetingText}>{item['groupDesc']}</Text>
+                    </View>
+
+                    
+                {/* </TouchableOpacity> */}
             </TouchableOpacity>
+
+            <View style={styles.trashCanContainer}>
+                <TouchableOpacity onPress= {removeClass}>
+                    <Ionicons name="trash" size={20} color="black" />
+                </TouchableOpacity>
+            </View>
+            
           </View>
         );
       };
@@ -121,7 +170,7 @@ function MyGroupScreen(props) {
                 <FlatList
                 data={searchResults}
                 renderItem = {renderSearchResult}
-                keyExtractor={(item) => item['groupId']}
+                keyExtractor={(item, index) => index.toString()}
                 />
             </View>
             
@@ -246,8 +295,9 @@ const styles = StyleSheet.create({
     },
 
     resultText: {
-      fontSize: 16,
-    },
+        fontSize: 18,
+        textDecorationLine: 'underline'
+      },
 
     courseIdText: {
       color: '#8a000d'
@@ -258,6 +308,61 @@ const styles = StyleSheet.create({
       top: 5,
       right: 5,
     },
+
+    shortTitleText: {
+        position: 'absolute',
+        left: 5,
+        Top: 5,
+      },
+  
+      courseId: {
+        position: 'absolute',
+        left: 5,
+        top: 22,
+      },
+  
+      instructorTextBox: {
+        position: 'absolute',
+        left: 5,
+        top: 37
+      },
+  
+      instructorText: {
+        color: '#20BABD'
+      },
+  
+      meetingTextBox: {
+        position: 'absolute',
+        left: 5,
+        top: 53
+      },
+  
+      meetingText: {
+        color: '#B38C00'
+      },
+
+      modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      modalTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 20,
+      },
+      modalText: {
+        fontSize: 18,
+        marginHorizontal: 20,
+        marginBottom: 20,
+        textAlign: 'center',
+      },
+      expandContainer: {
+        position: 'absolute',
+        right: 5,
+        bottom: 15,
+        width: '100%'
+      }
 })
 
 export default MyGroupScreen;
