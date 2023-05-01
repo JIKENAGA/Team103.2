@@ -95,7 +95,7 @@ function MyGroupScreen(props) {
     };
 
     const [expandedIndex, setExpandedIndex] = useState(-1);
-
+    
       // Collects the information from classesInfo and creates buttons based on that info
       const renderSearchResult = ({ item, index }) => {
         // Function to remove group when trashicon is clicked
@@ -123,27 +123,25 @@ function MyGroupScreen(props) {
         // Class Buttons
         return (
           <View style = {styles.classContainer}>
-            <TouchableOpacity style={styles.result} onPress={() => setExpandedIndex(expandedIndex === index ? -1 : index)}>
-                {/* <TouchableOpacity style={styles.result} onPress={onPressChat}> */}
+            <TouchableOpacity style={styles.result} onPress={onPressChat}>
 
-                    <View style = {styles.shortTitleText}>
-                        <Text style={styles.resultText}>{item['groupName']}</Text>
-                    </View>
+                <View style = {styles.shortTitleText}>
+                    <Text style={styles.resultText}>{item['groupName']}</Text>
+                </View>
 
-                    <View style = {styles.courseId}>
-                        <Text style={styles.courseIdText}>{item['course']}</Text>
-                    </View>
-                    
-                    <View style = {styles.instructorTextBox}>
-                        <Text style = {styles.instructorText}>{item['groupMeetingDays']}, {item['groupMeetingTime']}</Text>
-                    </View>
+                <View style = {styles.courseId}>
+                    <Text style={styles.courseIdText}>{item['course']}</Text>
+                </View>
+                
+                <View style = {styles.instructorTextBox}>
+                    <Text style = {styles.instructorText}>{item['groupMeetingDays']}, {item['groupMeetingTime']}</Text>
+                </View>
 
-                    <View style = {styles.meetingTextBox}>
-                        <Text style = {styles.meetingText}>{item['groupDesc']}</Text>
-                    </View>
+                <View style = {styles.meetingTextBox}>
+                    <Text style = {styles.meetingText}>{item['groupDesc']}</Text>
+                </View>
 
-                    
-                {/* </TouchableOpacity> */}
+                
             </TouchableOpacity>
 
             <View style={styles.trashCanContainer}>
@@ -170,7 +168,7 @@ function MyGroupScreen(props) {
                 <FlatList
                 data={searchResults}
                 renderItem = {renderSearchResult}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item['groupId']}
                 />
             </View>
             
