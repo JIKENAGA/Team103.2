@@ -47,9 +47,7 @@ function MyGroupScreen(props) {
       const onPressHome = () => {
         props.navigation.navigate('HomeScreen')
       }
-      const onPressChat = () => {
-        props.navigation.navigate('ChatScreen')
-      }
+
   
       // Creates an empty list for the handleSearch function to add data about classes into
       const [searchResults, setSearchResults] = useState([]);
@@ -98,6 +96,10 @@ function MyGroupScreen(props) {
     
       // Collects the information from classesInfo and creates buttons based on that info
       const renderSearchResult = ({ item, index }) => {
+
+        const onPressChat = () => {
+          props.navigation.navigate('ChatScreen', item.groupId)
+        }
         // Function to remove group when trashicon is clicked
         const removeClass = async () => {
             const userId = auth.currentUser.uid;
