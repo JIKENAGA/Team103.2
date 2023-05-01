@@ -87,9 +87,11 @@ function HomeScreen(props) {
 
       const addClassButton = ({ onPress }) => {
         return (
-          <TouchableOpacity style={styles.addClass} onPress={onPressSearchClass}>
-            <Ionicons name="add" size={25} color="black" />
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.addClass} onPress={onPressSearchClass}>
+              <Ionicons name="add" size={25} color="black" />
+              <Text> Add Class</Text>
+            </TouchableOpacity>
+            
         );
       };
 

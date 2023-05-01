@@ -95,7 +95,7 @@ export default function SearchScreen(props) {
       <View style={styles.input}>
         <TextInput
           style={styles.TextInput}
-          placeholder="Enter search term"
+          placeholder="Search By Class Name"
           value={searchTerm}
           onChangeText={(text) => setSearchTerm(text)}
         />
