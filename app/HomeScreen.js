@@ -18,12 +18,21 @@ function HomeScreen(props) {
   // Makes handleSearch run when this screen gets navigated to
   useEffect(() => {
       if(isFocused) {
+        setCourseId('')
         
         handleSearch();
         //console.log('test');
       }
     }, [props, isFocused]);
 
+  const[courseId, setCourseId] = useState('')
+
+  useEffect(()=>{
+    if(courseId !== ''){
+    props.navigation.navigate('GroupScreen', {courseId: courseId})
+  }
+
+  }, [courseId])
     // Navigate to log in screen
     const onPressLogin = () => {
         props.navigation.navigate('LoginScreen');
@@ -104,7 +113,7 @@ function HomeScreen(props) {
 
       // Navigate to GroupScreen, "{courseId: item.Course}" sends the courseId of the corresponding class' button to the GroupScreen to be used in querying the groups table
       const onPressGroupScreen = () => {
-        props.navigation.navigate('GroupScreen', {courseId: item.Course});
+        setCourseId(item.Course);
       }
 
       // Function to remove classes when trash icon is pressed
