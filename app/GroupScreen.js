@@ -53,7 +53,7 @@ function GroupScreen(props) {
     };
 
     const onPressMyGroups = () => {
-        props.navigation.navigate('HomeScreen');
+        props.navigation.navigate('MyGroupScreen');
     }
 
 
