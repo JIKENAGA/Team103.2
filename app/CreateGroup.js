@@ -19,7 +19,7 @@ import { db} from './Firebase/firebase';
 // import { group } from "console";
 
 function CreateGroup(props) {
-    const { courseId } = props.route.params;
+    const { groupId } = props.route.params;
     const [groupName, setGroupName] = useState("");
     const [groupMeetingDays, setGroupMeetingDays] = useState("");
     const [groupMeetingTime, setGroupMeetingTime] = useState("");
@@ -33,7 +33,7 @@ function CreateGroup(props) {
         props.navigation.navigate('HomeScreen');
       };
       const onPressGroupScreen = () => {
-        props.navigation.navigate('GroupScreen', {courseId});
+        props.navigation.navigate('GroupScreen', {groupId: groupId});
       };
 
     // Navigate to Profile screen
@@ -55,7 +55,6 @@ function CreateGroup(props) {
         if (!groupDesc) {
           const userId = currentUser.uid;
           const userRef = ref(db, `userinfo/${userId}`);
-          console.log(userRef);
           get(userRef).then((snapshot) => {
             const userInfo = snapshot.val();
             const displayName = userInfo.displayName;
@@ -82,10 +81,23 @@ function CreateGroup(props) {
             userId,
             groupId
           });
+
+          const createChatRef = ref(db, 'chats');
+          const newCreateChatRef = push(createChatRef)
+          set(newCreateChatRef,{})
+
+          chatId = newCreateChatRef.key
+
+          const chatRef = ref(db, 'chatRelation');
+          const newChatRef = push(chatRef);
+          set (newChatRef,{
+            groupId,
+            chatId
+
+          })
           alert("Group Created")
         
           props.navigation.navigate('GroupScreen', {courseId})
-        console.log(groupDesc)
     }
 
     return (

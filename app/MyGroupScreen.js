@@ -70,7 +70,6 @@ function MyGroupScreen(props) {
             const data = child.val();
             courseIdList.push(data.groupId);
         });
-        console.log(courseIdList);
         
         // Query the classes table with the courseIds from courseIdList to get the information about the classes and adds it to searchResults
         const classesRef = ref(db, 'groups');
@@ -88,17 +87,34 @@ function MyGroupScreen(props) {
             });
             });
             setSearchResults(classesInfo);
-            console.log('test', classesInfo);
         });
     };
 
+    const[chatId, setChatId] = useState('')
+    useEffect(()=>{
+      if (chatId !== '') {
+        props.navigation.navigate('ChatScreen', {chatId: chatId})
+        // data has been updated, do something with it
+        console.log(chatId);
+      }
+    }, [chatId])
     const [expandedIndex, setExpandedIndex] = useState(-1);
     
       // Collects the information from classesInfo and creates buttons based on that info
       const renderSearchResult = ({ item, index }) => {
 
-        const onPressChat = () => {
-          props.navigation.navigate('ChatScreen', item.groupId)
+        const onPressChat = async () => {
+          const chatIdRef = ref(db, 'chatRelation')
+          const chatIdQuery = query(chatIdRef, orderByChild('groupId'), equalTo(item.groupId))
+          
+          await get(chatIdQuery).then((snapshot)=>{
+            const parentKey = Object.keys(snapshot.val())[0];
+
+            setChatId(snapshot.val()[parentKey].chatId)
+            console.log(snapshot.val()[parentKey].chatId)
+          }
+          )
+
         }
         // Function to remove group when trashicon is clicked
         const removeClass = async () => {
