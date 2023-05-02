@@ -30,7 +30,7 @@ function GroupScreen(props) {
         if(isFocused) {
           
           handleGroupSearch();
-          console.log('searchresults', searchResults);
+          // console.log('searchresults', searchResults);
           //console.log('test');
         }
       }, [props, isFocused, searchResults]);
@@ -49,7 +49,7 @@ function GroupScreen(props) {
 
     // Navigate to class search screen
     const onPressCreateGroup = () => {
-      props.navigation.navigate('CreateGroup',{courseId});
+      props.navigation.navigate('CreateGroup',{courseId: courseId});
     };
 
     const onPressMyGroups = () => {
@@ -75,7 +75,7 @@ function GroupScreen(props) {
             const data = child.val();
             courseIdList.push(data.groupId);
         });
-        console.log(courseIdList);
+        // console.log(courseIdList);
         
         // Query the groups table with the courseIds from courseIdList to get the information about the groups and adds it to searchResults
         const groupsInfoRef = ref(db, 'groups');

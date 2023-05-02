@@ -24,6 +24,7 @@ function CreateGroup(props) {
     const [groupMeetingDays, setGroupMeetingDays] = useState("");
     const [groupMeetingTime, setGroupMeetingTime] = useState("");
     const [groupDesc, setGroupDesc] = useState("");
+    const [isLoading, setIsLoading] = useState(true)
     
     
     const onPressLogin = () => {
@@ -33,7 +34,7 @@ function CreateGroup(props) {
         props.navigation.navigate('HomeScreen');
       };
       const onPressGroupScreen = () => {
-        props.navigation.navigate('GroupScreen', {groupId: groupId});
+        props.navigation.navigate('GroupScreen', {courseId: courseId});
       };
 
     // Navigate to Profile screen
@@ -47,6 +48,53 @@ function CreateGroup(props) {
 
     const auth = getAuth();
 
+    useEffect(() => {
+      if (groupDesc !== '' && isLoading === false){
+
+      const auth = getAuth();
+
+        const groupsRef = ref(db, 'groups')
+        const newGroupsRef = push(groupsRef)
+        const groupId = newGroupsRef.key;
+        console.log('groupDesc', groupDesc)
+        set(newGroupsRef, {
+            course: courseId,
+            groupName: groupName,
+            groupMeetingDays,
+            groupMeetingTime,
+            groupDesc,
+            groupId
+          });
+      
+        const userId = auth.currentUser.uid;
+        const groupRelationRef = ref(db, 'groupRelation');
+        const newGroupRelationRef = push(groupRelationRef);
+        set(newGroupRelationRef, {
+          userId,
+          groupId
+        });
+
+        const createChatRef = ref(db, 'chats');
+        const newCreateChatRef = push(createChatRef)
+        set(newCreateChatRef,{})
+
+        chatId = newCreateChatRef.key
+
+        const chatRef = ref(db, 'chatRelation');
+        const newChatRef = push(chatRef);
+        set (newChatRef,{
+          groupId,
+          chatId
+
+        })
+        alert("Group Created")
+      
+        props.navigation.navigate('GroupScreen', {courseId: courseId})
+      }
+      
+
+    }, [groupDesc]);
+
     const onPressCreateGroup = () => {
         //console.log(courseId)
         const auth = getAuth();
@@ -55,54 +103,66 @@ function CreateGroup(props) {
             alert("Please fill out all required fields")
             return
         }
+        setIsLoading(false)
+
+
 
         if (!groupDesc) {
           const userId = currentUser.uid;
           const userRef = ref(db, `userinfo/${userId}`);
+          console.log(userRef)
           get(userRef).then((snapshot) => {
             const userInfo = snapshot.val();
             const displayName = userInfo.displayName;
+            console.log(displayName)
             setGroupDesc(`${displayName}'s Group`);
           });
-        }
+        } else{
+          const auth = getAuth();
 
-          const groupsRef = ref(db, 'groups')
-          const newGroupsRef = push(groupsRef)
-          const groupId = newGroupsRef.key;
-          set(newGroupsRef, {
-              course: courseId,
-              groupName: groupName,
-              groupMeetingDays,
-              groupMeetingTime,
-              groupDesc,
-              groupId
-            });
-        
-          const userId = auth.currentUser.uid;
-          const groupRelationRef = ref(db, 'groupRelation');
-          const newGroupRelationRef = push(groupRelationRef);
-          set(newGroupRelationRef, {
-            userId,
+        const groupsRef = ref(db, 'groups')
+        const newGroupsRef = push(groupsRef)
+        const groupId = newGroupsRef.key;
+        console.log('groupDesc', groupDesc)
+        set(newGroupsRef, {
+            course: courseId,
+            groupName: groupName,
+            groupMeetingDays,
+            groupMeetingTime,
+            groupDesc,
             groupId
           });
+      
+        const userId = auth.currentUser.uid;
+        const groupRelationRef = ref(db, 'groupRelation');
+        const newGroupRelationRef = push(groupRelationRef);
+        set(newGroupRelationRef, {
+          userId,
+          groupId
+        });
 
-          const createChatRef = ref(db, 'chats');
-          const newCreateChatRef = push(createChatRef)
-          set(newCreateChatRef,{})
+        const createChatRef = ref(db, 'chats');
+        const newCreateChatRef = push(createChatRef)
+        set(newCreateChatRef,{})
 
-          chatId = newCreateChatRef.key
+        chatId = newCreateChatRef.key
 
-          const chatRef = ref(db, 'chatRelation');
-          const newChatRef = push(chatRef);
-          set (newChatRef,{
-            groupId,
-            chatId
+        const chatRef = ref(db, 'chatRelation');
+        const newChatRef = push(chatRef);
+        set (newChatRef,{
+          groupId,
+          chatId
 
-          })
-          alert("Group Created")
-        
-          props.navigation.navigate('GroupScreen', {courseId})
-    }
+        })
+        alert("Group Created")
+      
+        props.navigation.navigate('GroupScreen', {courseId: courseId})
+      }
+
+        }
+
+          
+  
 
     return (
         <View style = {styles.container}>
