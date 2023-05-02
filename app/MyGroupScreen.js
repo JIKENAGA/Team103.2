@@ -20,6 +20,7 @@ function MyGroupScreen(props) {
     // Makes handleSearch run when this screen gets navigated to
     useEffect(() => {
         if(isFocused) {
+          setChatId('')
           
           handleGroupSearch();
           //console.log('test');
