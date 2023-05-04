@@ -107,7 +107,7 @@ const onPressHome = () => {
 
 const [message, setMessage] = useState('');
 const handleSendMessage = async(event)=>{
-  event.preventDefault()
+  // event.preventDefault()
   if (message.trim() === "") {
     alert("Enter valid message");
     return;
@@ -122,6 +122,7 @@ const handleSendMessage = async(event)=>{
     displayName = snapshot.val().displayName
   });
   const chatRef = ref(db, 'chats/' + chatId)
+
   const newChatRef = push(chatRef)
   const newChatRefKey = newChatRef.key
   set(newChatRef,{

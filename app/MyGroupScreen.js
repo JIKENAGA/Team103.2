@@ -20,6 +20,7 @@ function MyGroupScreen(props) {
     // Makes handleSearch run when this screen gets navigated to
     useEffect(() => {
         if(isFocused) {
+          setChatId('')
           
           handleGroupSearch();
           //console.log('test');
@@ -91,6 +92,8 @@ function MyGroupScreen(props) {
     };
 
     const[chatId, setChatId] = useState('')
+
+    
     useEffect(()=>{
       if (chatId !== '') {
         props.navigation.navigate('ChatScreen', {chatId: chatId})
@@ -98,7 +101,7 @@ function MyGroupScreen(props) {
         console.log(chatId);
       }
     }, [chatId])
-    const [expandedIndex, setExpandedIndex] = useState(-1);
+
     
       // Collects the information from classesInfo and creates buttons based on that info
       const renderSearchResult = ({ item, index }) => {

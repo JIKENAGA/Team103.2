@@ -30,7 +30,7 @@ function GroupScreen(props) {
         if(isFocused) {
           
           handleGroupSearch();
-          //console.log('searchresults', searchResults);
+          // console.log('searchresults', searchResults);
           //console.log('test');
         }
       }, [props, isFocused, searchResults]);
@@ -49,7 +49,7 @@ function GroupScreen(props) {
 
     // Navigate to class search screen
     const onPressCreateGroup = () => {
-      props.navigation.navigate('CreateGroup',{courseId});
+      props.navigation.navigate('CreateGroup',{courseId: courseId});
     };
 
     const onPressMyGroups = () => {
@@ -75,7 +75,7 @@ function GroupScreen(props) {
             const data = child.val();
             courseIdList.push(data.groupId);
         });
-        //console.log(courseIdList);
+        // console.log(courseIdList);
         
         // Query the groups table with the courseIds from courseIdList to get the information about the groups and adds it to searchResults
         const groupsInfoRef = ref(db, 'groups');
@@ -128,40 +128,12 @@ function GroupScreen(props) {
         return null;
         }
         return (
-          <View style = {styles.classContainer}>
-          <TouchableOpacity style={styles.result}>
-
-              <View style = {styles.shortTitleText}>
-                  <Text style={styles.resultText}>{item['groupName']}</Text>
-              </View>
-
-              <View style = {styles.courseId}>
-                  <Text style={styles.courseIdText}>{item['course']}</Text>
-              </View>
-              
-              <View style = {styles.instructorTextBox}>
-                  <Text style = {styles.instructorText}>{item['groupMeetingDays']}, {item['groupMeetingTime']}</Text>
-              </View>
-
-              <View style = {styles.meetingTextBox}>
-                  <Text style = {styles.meetingText}>{item['groupDesc']}</Text>
-              </View>
-
-              
-          </TouchableOpacity>
-            <View style={styles.trashCanContainer}>
-              <TouchableOpacity style={styles.addButton} onPress={() => handleAdd(item['groupId'])}>
-                 <Ionicons name="add" size={20} color="black" />
-               </TouchableOpacity>
-            </View>
-          </View>
-        // <TouchableOpacity style={styles.result} onPress={() => console.log(`Pressed ${item['groupName']}`)}>
-        //     <Text style={styles.resultText}>{item['groupName']}</Text>
-        //     <TouchableOpacity style={styles.addButton} onPress={() => handleAdd(item['groupId'])}>
-        //         <Ionicons name="add" size={20} color="black" />
-        //     </TouchableOpacity>
-        // </TouchableOpacity>
-
+        <TouchableOpacity style={styles.result} onPress={() => console.log(`Pressed ${item['groupName']}`)}>
+            <Text style={styles.resultText}>{item['groupName']}</Text>
+            <TouchableOpacity style={styles.addButton} onPress={() => handleAdd(item['groupId'])}>
+                <Ionicons name="add" size={20} color="black" />
+            </TouchableOpacity>
+        </TouchableOpacity>
         );
     };
 
@@ -327,13 +299,15 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
     height: 80,
     alignItems: 'center',
   },
 
   resultText: {
-    fontSize: 18,
-    textDecorationLine: 'underline'
+    fontSize: 16,
+    color: 'black'
   },
 
   courseIdText: {
@@ -347,44 +321,5 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
   },
-
-  shortTitleText: {
-    position: 'absolute',
-    left: 5,
-    Top: 5,
-  },
-
-  courseId: {
-    position: 'absolute',
-    left: 5,
-    top: 22,
-  },
-
-  instructorTextBox: {
-    position: 'absolute',
-    left: 5,
-    top: 37
-  },
-
-  instructorText: {
-    color: '#20BABD'
-  },
-
-  meetingTextBox: {
-    position: 'absolute',
-    left: 5,
-    top: 53
-  },
-
-  meetingText: {
-    color: '#B38C00'
-  },
-
-  trashCanContainer: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-  },
-
 })
 export default GroupScreen;
