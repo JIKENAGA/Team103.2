@@ -128,12 +128,33 @@ function GroupScreen(props) {
         return null;
         }
         return (
-        <TouchableOpacity style={styles.result} onPress={() => console.log(`Pressed ${item['groupName']}`)}>
-            <Text style={styles.resultText}>{item['groupName']}</Text>
-            <TouchableOpacity style={styles.addButton} onPress={() => handleAdd(item['groupId'])}>
-                <Ionicons name="add" size={20} color="black" />
-            </TouchableOpacity>
-        </TouchableOpacity>
+          <View style = {styles.classContainer}>
+          <TouchableOpacity style={styles.result}>
+
+              <View style = {styles.shortTitleText}>
+                  <Text style={styles.resultText}>{item['groupName']}</Text>
+              </View>
+
+              <View style = {styles.courseId}>
+                  <Text style={styles.courseIdText}>{item['course']}</Text>
+              </View>
+              
+              <View style = {styles.instructorTextBox}>
+                  <Text style = {styles.instructorText}>{item['groupMeetingDays']}, {item['groupMeetingTime']}</Text>
+              </View>
+
+              <View style = {styles.meetingTextBox}>
+                  <Text style = {styles.meetingText}>{item['groupDesc']}</Text>
+              </View>
+
+              
+          </TouchableOpacity>
+            <View style={styles.trashCanContainer}>
+              <TouchableOpacity style={styles.addButton} onPress={() => handleAdd(item['groupId'])}>
+                 <Ionicons name="add" size={20} color="black" />
+               </TouchableOpacity>
+            </View>
+          </View>
         );
     };
 
@@ -299,15 +320,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
     height: 80,
     alignItems: 'center',
   },
 
   resultText: {
-    fontSize: 16,
-    color: 'black'
+    fontSize: 18,
+    textDecorationLine: 'underline'
   },
 
   courseIdText: {
@@ -321,5 +340,44 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
   },
+
+  shortTitleText: {
+    position: 'absolute',
+    left: 5,
+    Top: 5,
+  },
+
+  courseId: {
+    position: 'absolute',
+    left: 5,
+    top: 22,
+  },
+
+  instructorTextBox: {
+    position: 'absolute',
+    left: 5,
+    top: 37
+  },
+
+  instructorText: {
+    color: '#20BABD'
+  },
+
+  meetingTextBox: {
+    position: 'absolute',
+    left: 5,
+    top: 53
+  },
+
+  meetingText: {
+    color: '#B38C00'
+  },
+
+  trashCanContainer: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+  },
+
 })
 export default GroupScreen;
